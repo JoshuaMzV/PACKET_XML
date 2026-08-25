@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Packet_XML • AI Network Orchestrator for Cisco Packet Tracer</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Cytoscape.js (High-performance Graph Engine) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+  <!-- Dagre layout for Cytoscape (Hierarchical networks) -->
+  <script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+  <!-- Custom Style -->
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#10b981',
+              600: '#059669',
+              900: '#064e3b'
+            },
+            cisco: {
+              blue: '#049fd9',
+              dark: '#0e1726',
+              card: '#161f30',
+              border: '#223048'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0b0f19] text-gray-200 font-sans h-screen flex flex-col overflow-hidden">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-[#111827] border-b border-gray-800 px-4 py-2.5 flex items-center justify-between z-30">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
+        <i class="fa-solid fa-network-wired text-lg"></i>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-base font-bold tracking-wider text-white">PACKET<span class="text-cyan-400">_XML</span></h1>
+          <span class="text-[10px] bg-cyan-950 text-cyan-400 border border-cyan-800 px-1.5 py-0.5 rounded font-mono font-bold">AI ORCHESTRATOR</span>
+        </div>
+        <p class="text-[11px] text-gray-400">Cisco Packet Tracer Architecture & 300+ Scale Engine</p>
+      </div>
+    </div>
+
+    <!-- Center Config: Model & Presets -->
+    <div class="flex items-center space-x-3">
+      <!-- AI Model Picker -->
+      <div class="flex items-center space-x-1.5 bg-[#1a2333] border border-gray-700 px-2.5 py-1 rounded-lg">
+        <i class="fa-solid fa-microchip text-emerald-400 text-xs"></i>
+        <span class="text-xs text-gray-400 font-medium">IA:</span>
+        <select id="modelSelect" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer">
+          <option value="qwen3:8b">Ollama: qwen3:8b (Local)</option>
+          <option value="mistral:7b-instruct">Ollama: mistral:7b (Local)</option>
+          <option value="joshua:latest">Ollama: joshua (Local)</option>
+          <option value="gemini">Google Gemini API</option>
+          <option value="openai">OpenAI GPT-4o API</option>
+        </select>
+      </div>
+
+      <!-- Scale Presets -->
+      <div class="flex items-center space-x-1.5 bg-[#1a2333] border border-gray-700 px-2.5 py-1 rounded-lg">
+        <i class="fa-solid fa-cubes text-cyan-400 text-xs"></i>
+        <span class="text-xs text-gray-400 font-medium">Escala:</span>
+        <select id="scaleSelect" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer">
+          <option value="medium_50">Campus Mediano (50 Nodos)</option>
+          <option value="enterprise_150" selected>Empresarial (150 Nodos)</option>
+          <option value="massive_300">Mega Red (300 Nodos)</option>
+          <option value="small_10">Lab Rápido (10 Nodos)</option>
+        </select>
+        <button id="btnLoadScale" class="text-xs bg-cyan-600 hover:bg-cyan-500 text-white px-2 py-0.5 rounded font-medium transition">
+          Cargar
+        </button>
+      </div>
+
+      <!-- Live Bridge Status Badge -->
+      <div id="bridgeBadge" class="flex items-center space-x-2 bg-gray-900 border border-gray-800 px-3 py-1 rounded-lg">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="text-xs font-mono text-gray-300" id="bridgeText">Bridge: Listo</span>
+      </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="flex items-center space-x-2">
+      <button id="btnLiveDeploy" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs px-3.5 py-1.5 rounded-lg font-semibold flex items-center space-x-2 shadow-lg shadow-emerald-900/30 transition">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Desplegar en Vivo</span>
+      </button>
+
+      <div class="relative inline-block text-left">
+        <button id="btnExportMenu" class="bg-gray-800 hover:bg-gray-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium flex items-center space-x-1.5 border border-gray-700 transition">
+          <i class="fa-solid fa-download"></i>
+          <span>Exportar</span>
+          <i class="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+        </button>
+        <!-- Dropdown Menu -->
+        <div id="exportDropdown" class="hidden absolute right-0 mt-1 w-52 bg-[#1f293d] border border-gray-700 rounded-lg shadow-xl py-1 z-50 text-xs">
+          <a href="#" id="exportPkt" class="block px-4 py-2 hover:bg-purple-900/50 text-purple-200 flex items-center space-x-2 font-medium">
+            <i class="fa-solid fa-cube text-purple-400"></i>
+            <span>Descargar .PKT (Packet Tracer)</span>
+          </a>
+          <div class="border-t border-gray-700 my-1"></div>
+          <a href="#" id="exportXml" class="block px-4 py-2 hover:bg-cyan-900/50 text-gray-200 flex items-center space-x-2">
+            <i class="fa-solid fa-file-code text-cyan-400"></i>
+            <span>Descargar XML (.xml)</span>
+          </a>
+          <a href="#" id="exportPtBuilder" class="block px-4 py-2 hover:bg-cyan-900/50 text-gray-200 flex items-center space-x-2">
+            <i class="fa-brands fa-js text-yellow-400"></i>
+            <span>Script PTBuilder (.js)</span>
+          </a>
+          <a href="#" id="exportIos" class="block px-4 py-2 hover:bg-cyan-900/50 text-gray-200 flex items-center space-x-2">
+            <i class="fa-solid fa-terminal text-emerald-400"></i>
+            <span>Configs Cisco IOS (.txt)</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN 3-PANEL WORKSPACE -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- LEFT PANEL: AI Chat & Network Designer -->
+    <aside class="w-80 bg-[#111827]/90 border-r border-gray-800 flex flex-col z-20">
+      <!-- Panel Header -->
+      <div class="p-3 border-b border-gray-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-brain text-cyan-400 text-sm"></i>
+          <h2 class="text-xs font-bold text-white uppercase tracking-wider">Diseñador de Red con IA</h2>
+        </div>
+        <span class="text-[10px] text-gray-400 font-mono">v1.0</span>
+      </div>
+
+      <!-- Quick Chips / Templates -->
+      <div class="p-3 border-b border-gray-800 bg-[#0d131f]">
+        <p class="text-[11px] text-gray-400 mb-2 font-medium">Plantillas de Red Rápidas:</p>
+        <div class="flex flex-wrap gap-1.5">
+          <button class="prompt-chip text-[11px] bg-[#1a2333] hover:bg-cyan-900/60 border border-gray-700 text-cyan-300 px-2 py-1 rounded transition">
+            🏥 Hospital 3 Pisos (120 PCs)
+          </button>
+          <button class="prompt-chip text-[11px] bg-[#1a2333] hover:bg-cyan-900/60 border border-gray-700 text-cyan-300 px-2 py-1 rounded transition">
+            🏦 Banco 3 Sucursales OSPF
+          </button>
+          <button class="prompt-chip text-[11px] bg-[#1a2333] hover:bg-cyan-900/60 border border-gray-700 text-cyan-300 px-2 py-1 rounded transition">
+            🎓 Campus 300 Dispositivos
+          </button>
+          <button class="prompt-chip text-[11px] bg-[#1a2333] hover:bg-cyan-900/60 border border-gray-700 text-cyan-300 px-2 py-1 rounded transition">
+            🏢 Data Center Spine-Leaf
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat / Prompt Area -->
+      <div class="flex-1 p-3 overflow-y-auto space-y-3" id="chatHistory">
+        <div class="bg-[#161f30] border border-gray-800 rounded-lg p-3 text-xs">
+          <div class="flex items-center space-x-2 text-cyan-400 font-semibold mb-1">
+            <i class="fa-solid fa-robot"></i>
+            <span>Asistente Cisco CCIE</span>
+          </div>
+          <p class="text-gray-300 leading-relaxed">
+            Describe en lenguaje natural la red que necesitas o selecciona una escala. Yo calcularé el direccionamiento <b>VLSM</b>, la jerarquía de switches/routers y todas las configuraciones <b>Cisco IOS</b>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="p-3 border-t border-gray-800 bg-[#0d131f]">
+        <div class="relative">
+          <textarea id="promptInput" rows="3" placeholder="Ej: Diseña una red para una universidad con 200 computadoras, 4 VLANs (Alumnos, Profesores, Admin, WiFi) y enrutamiento OSPF..." class="w-full bg-[#161f30] border border-gray-700 focus:border-cyan-500 rounded-lg p-2.5 text-xs text-white placeholder-gray-500 focus:outline-none resize-none"></textarea>
+          <button id="btnSendPrompt" class="absolute right-2 bottom-3 bg-cyan-600 hover:bg-cyan-500 text-white w-7 h-7 rounded-md flex items-center justify-center transition shadow">
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: Graph Canvas -->
+    <main class="flex-1 flex flex-col relative bg-[#0b0f19]">
+      <!-- Canvas Toolbar Overlay -->
+      <div class="absolute top-4 left-4 z-10 flex items-center space-x-2 bg-[#161f30]/90 backdrop-blur border border-gray-700 p-1.5 rounded-lg shadow-lg">
+        <button id="btnZoomIn" title="Acercar" class="w-7 h-7 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 flex items-center justify-center transition">
+          <i class="fa-solid fa-plus text-xs"></i>
+        </button>
+        <button id="btnZoomOut" title="Alejar" class="w-7 h-7 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 flex items-center justify-center transition">
+          <i class="fa-solid fa-minus text-xs"></i>
+        </button>
+        <button id="btnFit" title="Centrar Vista" class="w-7 h-7 bg-gray-800 hover:bg-gray-700 rounded text-gray-300 flex items-center justify-center transition">
+          <i class="fa-solid fa-expand text-xs"></i>
+        </button>
+        <div class="w-[1px] h-5 bg-gray-700 mx-1"></div>
+        <!-- Layout toggle -->
+        <select id="layoutSelect" class="bg-gray-800 text-xs text-gray-200 border border-gray-700 rounded px-2 py-1 focus:outline-none">
+          <option value="dagre">Vista Jerárquica (Core > Dist > Acceso)</option>
+          <option value="concentric">Vista Concéntrica</option>
+          <option value="cose">Vista Orgánica (Fuerza CoSE)</option>
+        </select>
+      </div>
+
+      <!-- Stats Overlay (Top-Right) -->
+      <div class="absolute top-4 right-4 z-10 bg-[#161f30]/90 backdrop-blur border border-gray-700 px-3 py-2 rounded-lg shadow-lg flex items-center space-x-4 text-xs font-mono">
+        <div>
+          <span class="text-gray-400">Dispositivos:</span>
+          <span id="statDevices" class="font-bold text-cyan-400">146</span>
+        </div>
+        <div class="w-[1px] h-4 bg-gray-700"></div>
+        <div>
+          <span class="text-gray-400">Enlaces:</span>
+          <span id="statLinks" class="font-bold text-emerald-400">168</span>
+        </div>
+        <div class="w-[1px] h-4 bg-gray-700"></div>
+        <div>
+          <span class="text-gray-400">Protocolo:</span>
+          <span id="statProtocol" class="font-bold text-yellow-400">OSPF</span>
+        </div>
+      </div>
+
+      <!-- CYTOSCAPE GRAPH CONTAINER -->
+      <div id="cy" class="flex-1 w-full h-full"></div>
+
+      <!-- Bottom Filter Bar -->
+      <div class="bg-[#111827] border-t border-gray-800 px-4 py-2 flex items-center justify-between text-xs z-10">
+        <div class="flex items-center space-x-3">
+          <span class="text-gray-400 text-[11px] font-medium">Filtrar Capas:</span>
+          <label class="flex items-center space-x-1 cursor-pointer">
+            <input type="checkbox" checked id="filterCore" class="rounded text-cyan-600 focus:ring-0">
+            <span class="text-red-400 font-medium text-[11px]">Core (Routers)</span>
+          </label>
+          <label class="flex items-center space-x-1 cursor-pointer">
+            <input type="checkbox" checked id="filterDist" class="rounded text-cyan-600 focus:ring-0">
+            <span class="text-blue-400 font-medium text-[11px]">Distribución (L3)</span>
+          </label>
+          <label class="flex items-center space-x-1 cursor-pointer">
+            <input type="checkbox" checked id="filterAccess" class="rounded text-cyan-600 focus:ring-0">
+            <span class="text-emerald-400 font-medium text-[11px]">Acceso (L2)</span>
+          </label>
+          <label class="flex items-center space-x-1 cursor-pointer">
+            <input type="checkbox" checked id="filterEndpoints" class="rounded text-cyan-600 focus:ring-0">
+            <span class="text-gray-300 font-medium text-[11px]">Hosts (PCs / Servidores)</span>
+          </label>
+        </div>
+
+        <div class="flex items-center space-x-2 text-[11px] text-gray-400 font-mono">
+          <i class="fa-solid fa-circle-info text-cyan-400"></i>
+          <span>Haz clic en cualquier nodo para inspeccionar sus comandos IOS y puertos.</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL: Node Inspector & Cisco IOS Terminal -->
+    <aside class="w-96 bg-[#111827]/95 border-l border-gray-800 flex flex-col z-20">
+      <!-- Inspector Header -->
+      <div class="p-3 border-b border-gray-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-sliders text-emerald-400 text-sm"></i>
+          <h2 class="text-xs font-bold text-white uppercase tracking-wider">Inspector de Dispositivo</h2>
+        </div>
+        <span id="selectedNodeType" class="text-[10px] bg-gray-800 text-gray-300 border border-gray-700 px-2 py-0.5 rounded font-mono">ROUTER</span>
+      </div>
+
+      <!-- Node Summary Card -->
+      <div class="p-3 border-b border-gray-800 bg-[#0d131f]" id="nodeSummary">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <div id="nodeIconBox" class="w-8 h-8 rounded bg-red-950/60 border border-red-800 text-red-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-server text-sm"></i>
+            </div>
+            <div>
+              <h3 id="nodeLabel" class="text-sm font-bold text-white">Core-R1</h3>
+              <p id="nodeModel" class="text-[11px] text-gray-400">Cisco 2911 Integrated Services Router</p>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-[11px] mt-3">
+          <div class="bg-[#161f30] p-2 rounded border border-gray-800">
+            <span class="text-gray-400 block text-[10px]">Capa Jerárquica:</span>
+            <span id="nodeLayer" class="font-semibold text-cyan-400">Core Layer</span>
+          </div>
+          <div class="bg-[#161f30] p-2 rounded border border-gray-800">
+            <span class="text-gray-400 block text-[10px]">IP / Gateway:</span>
+            <span id="nodeIp" class="font-semibold font-mono text-emerald-400">10.0.10.1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inspector Tabs -->
+      <div class="flex border-b border-gray-800 bg-[#161f30] text-xs">
+        <button id="tabIos" class="flex-1 py-2 text-center font-medium text-cyan-400 border-b-2 border-cyan-400 transition">
+          <i class="fa-solid fa-terminal mr-1"></i> IOS Config
+        </button>
+        <button id="tabVlsm" class="flex-1 py-2 text-center font-medium text-gray-400 hover:text-gray-200 transition">
+          <i class="fa-solid fa-table mr-1"></i> Tabla VLSM
+        </button>
+        <button id="tabBridge" class="flex-1 py-2 text-center font-medium text-gray-400 hover:text-gray-200 transition">
+          <i class="fa-solid fa-satellite-dish mr-1"></i> Live Bridge
+        </button>
+      </div>
+
+      <!-- Tab Content 1: Cisco IOS CLI -->
+      <div id="contentIos" class="flex-1 p-3 flex flex-col overflow-hidden bg-[#090d16]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[11px] text-gray-400 font-mono">running-config</span>
+          <button id="btnCopyIos" class="text-[11px] bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded flex items-center space-x-1 transition">
+            <i class="fa-regular fa-copy"></i>
+            <span>Copiar</span>
+          </button>
+        </div>
+        <pre id="iosCodeBlock" class="flex-1 bg-[#050811] text-emerald-400 p-3 rounded-lg font-mono text-[11px] overflow-y-auto border border-gray-800 leading-relaxed"></pre>
+      </div>
+
+      <!-- Tab Content 2: VLSM Subnet Table -->
+      <div id="contentVlsm" class="flex-1 p-3 overflow-y-auto bg-[#0d131f] hidden space-y-2">
+        <h4 class="text-xs font-bold text-gray-300 mb-2">Plan de Direccionamiento VLSM:</h4>
+        <div id="vlsmList" class="space-y-2 text-xs"></div>
+      </div>
+
+      <!-- Tab Content 3: Live Bridge Logs -->
+      <div id="contentBridge" class="flex-1 p-3 overflow-y-auto bg-[#090d16] font-mono text-[11px] text-gray-300 hidden flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-emerald-400 font-bold">Estado del Enlace Packet Tracer</span>
+          <span class="text-[10px] text-emerald-400 font-mono">Socket.IO: 7531 | Web: 8000</span>
+        </div>
+        <div id="bridgeLog" class="flex-1 bg-[#050811] p-2.5 rounded border border-gray-800 space-y-1 overflow-y-auto text-gray-400">
+          <p class="text-emerald-400 font-semibold">[SYSTEM] Puente Socket.IO activo en puerto 7531</p>
+          <p class="text-cyan-400">[BRIDGE] Conecta Packet Tracer abriendo 'Extensions -> Packet Tracer MCP'</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-12 right-6 bg-cyan-900 border border-cyan-700 text-white px-4 py-2.5 rounded-lg shadow-2xl text-xs flex items-center space-x-2 z-50 transition-all opacity-0 pointer-events-none translate-y-2">
+    <i class="fa-solid fa-circle-check text-cyan-400 text-sm"></i>
+    <span id="toastMsg">Mensaje de notificación</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

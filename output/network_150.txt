@@ -1,0 +1,1670 @@
+! ===========================================
+! Cisco IOS Configuration Bundle: Enterprise Multi-Floor Network (150 Devices)
+! Generated from Network IR (Intermediate Representation)
+! ===========================================
+
+! --- Device: R1 (router) ---
+enable
+configure terminal
+hostname R1
+no ip domain-lookup
+ip routing
+interface GigabitEthernet0/0
+ip address 10.255.1.1 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/1
+ip address 10.255.2.1 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/2
+ip address 172.16.0.1 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+router ospf 1
+router-id 1.1.1.1
+network 10.0.0.0 0.255.255.255 area 0
+network 172.16.0.0 0.0.255.255 area 0
+exit
+ip route 10.1.0.0 255.255.0.0 10.255.1.2
+ip route 10.2.0.0 255.255.0.0 10.255.2.2
+ip route 10.3.0.0 255.255.0.0 172.16.0.2
+ip route 10.4.0.0 255.255.0.0 172.16.0.2
+ip route 10.255.3.0 255.255.255.252 172.16.0.2
+ip route 10.255.4.0 255.255.255.252 172.16.0.2
+end
+write memory
+
+
+! --- Device: R2 (router) ---
+enable
+configure terminal
+hostname R2
+no ip domain-lookup
+ip routing
+interface GigabitEthernet0/0
+ip address 10.255.3.1 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/1
+ip address 10.255.4.1 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/2
+ip address 172.16.0.2 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+router ospf 1
+router-id 2.2.2.2
+network 10.0.0.0 0.255.255.255 area 0
+network 172.16.0.0 0.0.255.255 area 0
+exit
+ip route 10.1.0.0 255.255.0.0 172.16.0.1
+ip route 10.2.0.0 255.255.0.0 172.16.0.1
+ip route 10.255.1.0 255.255.255.252 172.16.0.1
+ip route 10.255.2.0 255.255.255.252 172.16.0.1
+ip route 10.3.0.0 255.255.0.0 10.255.3.2
+ip route 10.4.0.0 255.255.0.0 10.255.4.2
+end
+write memory
+
+
+! --- Device: DSW1 (switch_l3) ---
+enable
+configure terminal
+hostname DSW1
+no ip domain-lookup
+ip routing
+spanning-tree vlan 1-99 priority 4096
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+interface Vlan10
+ip address 10.1.10.1 255.255.255.0
+no shutdown
+exit
+interface Vlan20
+ip address 10.1.20.1 255.255.255.0
+no shutdown
+exit
+interface Vlan30
+ip address 10.1.30.1 255.255.255.0
+no shutdown
+exit
+interface Vlan40
+ip address 10.1.40.1 255.255.255.0
+no shutdown
+exit
+interface Vlan41
+ip address 10.1.41.1 255.255.255.0
+no shutdown
+exit
+interface Vlan50
+ip address 10.1.50.1 255.255.255.0
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet1/0/3
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/4
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/2
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/1
+no switchport
+ip address 10.255.1.2 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet1/0/10
+switchport mode access
+switchport access vlan 40
+spanning-tree portfast
+no shutdown
+exit
+end
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 10.255.1.1
+router ospf 1
+router-id 11.11.11.11
+network 10.1.0.0 0.0.255.255 area 0
+network 10.255.1.0 0.0.0.3 area 0
+exit
+end
+write memory
+
+
+! --- Device: DSW2 (switch_l3) ---
+enable
+configure terminal
+hostname DSW2
+no ip domain-lookup
+ip routing
+spanning-tree vlan 1-99 priority 8192
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+interface Vlan10
+ip address 10.2.10.1 255.255.255.0
+no shutdown
+exit
+interface Vlan20
+ip address 10.2.20.1 255.255.255.0
+no shutdown
+exit
+interface Vlan30
+ip address 10.2.30.1 255.255.255.0
+no shutdown
+exit
+interface Vlan40
+ip address 10.2.40.1 255.255.255.0
+no shutdown
+exit
+interface Vlan41
+ip address 10.2.41.1 255.255.255.0
+no shutdown
+exit
+interface Vlan50
+ip address 10.2.50.1 255.255.255.0
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet1/0/3
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/4
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/2
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/1
+no switchport
+ip address 10.255.2.2 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet1/0/10
+switchport mode access
+switchport access vlan 41
+spanning-tree portfast
+no shutdown
+exit
+end
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 10.255.2.1
+router ospf 1
+router-id 12.12.12.12
+network 10.2.0.0 0.0.255.255 area 0
+network 10.255.2.0 0.0.0.3 area 0
+exit
+end
+write memory
+
+
+! --- Device: DSW3 (switch_l3) ---
+enable
+configure terminal
+hostname DSW3
+no ip domain-lookup
+ip routing
+spanning-tree vlan 1-99 priority 4096
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+interface Vlan10
+ip address 10.3.10.1 255.255.255.0
+no shutdown
+exit
+interface Vlan20
+ip address 10.3.20.1 255.255.255.0
+no shutdown
+exit
+interface Vlan30
+ip address 10.3.30.1 255.255.255.0
+no shutdown
+exit
+interface Vlan40
+ip address 10.3.40.1 255.255.255.0
+no shutdown
+exit
+interface Vlan41
+ip address 10.3.41.1 255.255.255.0
+no shutdown
+exit
+interface Vlan50
+ip address 10.3.50.1 255.255.255.0
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet1/0/3
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/4
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/2
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/1
+no switchport
+ip address 10.255.3.2 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 10.255.3.1
+router ospf 1
+router-id 13.13.13.13
+network 10.3.0.0 0.0.255.255 area 0
+network 10.255.3.0 0.0.0.3 area 0
+exit
+end
+write memory
+
+
+! --- Device: DSW4 (switch_l3) ---
+enable
+configure terminal
+hostname DSW4
+no ip domain-lookup
+ip routing
+spanning-tree vlan 1-99 priority 8192
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+interface Vlan10
+ip address 10.4.10.1 255.255.255.0
+no shutdown
+exit
+interface Vlan20
+ip address 10.4.20.1 255.255.255.0
+no shutdown
+exit
+interface Vlan30
+ip address 10.4.30.1 255.255.255.0
+no shutdown
+exit
+interface Vlan40
+ip address 10.4.40.1 255.255.255.0
+no shutdown
+exit
+interface Vlan41
+ip address 10.4.41.1 255.255.255.0
+no shutdown
+exit
+interface Vlan50
+ip address 10.4.50.1 255.255.255.0
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet1/0/3
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/4
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/2
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+interface GigabitEthernet1/0/1
+no switchport
+ip address 10.255.4.2 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 10.255.4.1
+router ospf 1
+router-id 14.14.14.14
+network 10.4.0.0 0.0.255.255 area 0
+network 10.255.4.0 0.0.0.3 area 0
+exit
+end
+write memory
+
+
+! --- Device: ASW1 (switch_l2) ---
+enable
+configure terminal
+hostname ASW1
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW2 (switch_l2) ---
+enable
+configure terminal
+hostname ASW2
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW3 (switch_l2) ---
+enable
+configure terminal
+hostname ASW3
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW4 (switch_l2) ---
+enable
+configure terminal
+hostname ASW4
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW5 (switch_l2) ---
+enable
+configure terminal
+hostname ASW5
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW6 (switch_l2) ---
+enable
+configure terminal
+hostname ASW6
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW7 (switch_l2) ---
+enable
+configure terminal
+hostname ASW7
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW8 (switch_l2) ---
+enable
+configure terminal
+hostname ASW8
+no ip domain-lookup
+spanning-tree portfast default
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+spanning-tree portfast trunk
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/2
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/3
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/4
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/5
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/6
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/7
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/8
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/9
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/11
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/12
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+enable
+configure terminal
+interface FastEthernet0/13
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/14
+switchport mode access
+switchport access vlan 30
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/15
+switchport mode access
+switchport access vlan 50
+spanning-tree portfast
+no shutdown
+exit
+interface FastEthernet0/16
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+

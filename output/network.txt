@@ -1,0 +1,336 @@
+! ===========================================
+! Cisco IOS Configuration Bundle: Hierarchical 3-Tier Network (2R-2DSW-2ASW)
+! Generated from Network IR (Intermediate Representation)
+! ===========================================
+
+! --- Device: R1 (router) ---
+enable
+configure terminal
+hostname R1
+no ip domain-lookup
+ip routing
+interface GigabitEthernet0/0
+ip address 10.255.1.1 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/2
+ip address 172.16.0.1 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+router ospf 1
+router-id 1.1.1.1
+network 10.0.0.0 0.255.255.255 area 0
+network 172.16.0.0 0.0.255.255 area 0
+exit
+end
+write memory
+
+
+! --- Device: R2 (router) ---
+enable
+configure terminal
+hostname R2
+no ip domain-lookup
+ip routing
+interface GigabitEthernet0/0
+ip address 10.255.2.1 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/2
+ip address 172.16.0.2 255.255.255.252
+no shutdown
+exit
+end
+enable
+configure terminal
+router ospf 1
+router-id 2.2.2.2
+network 10.0.0.0 0.255.255.255 area 0
+network 172.16.0.0 0.0.255.255 area 0
+exit
+end
+write memory
+
+
+! --- Device: DSW1 (switch_l3) ---
+enable
+configure terminal
+hostname DSW1
+no ip domain-lookup
+ip routing
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+interface Vlan10
+ip address 10.0.0.65 255.255.255.240
+no shutdown
+exit
+interface Vlan20
+ip address 10.0.0.1 255.255.255.224
+no shutdown
+exit
+interface Vlan30
+ip address 10.0.0.33 255.255.255.224
+no shutdown
+exit
+interface Vlan40
+ip address 10.0.0.81 255.255.255.240
+no shutdown
+exit
+interface Vlan41
+ip address 10.0.0.97 255.255.255.240
+no shutdown
+exit
+interface Vlan50
+ip address 10.0.0.113 255.255.255.240
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+no switchport
+ip address 10.255.1.2 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 99
+no shutdown
+exit
+interface range FastEthernet0/1 - 8
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 99
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 40
+spanning-tree portfast
+no shutdown
+exit
+end
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 10.255.1.1
+router ospf 1
+router-id 11.11.11.11
+network 10.1.0.0 0.0.255.255 area 0
+network 10.255.1.0 0.0.0.3 area 0
+exit
+end
+write memory
+
+
+! --- Device: DSW2 (switch_l3) ---
+enable
+configure terminal
+hostname DSW2
+no ip domain-lookup
+ip routing
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+interface Vlan10
+ip address 10.0.0.65 255.255.255.240
+no shutdown
+exit
+interface Vlan20
+ip address 10.0.0.1 255.255.255.224
+no shutdown
+exit
+interface Vlan30
+ip address 10.0.0.33 255.255.255.224
+no shutdown
+exit
+interface Vlan40
+ip address 10.0.0.81 255.255.255.240
+no shutdown
+exit
+interface Vlan41
+ip address 10.0.0.97 255.255.255.240
+no shutdown
+exit
+interface Vlan50
+ip address 10.0.0.113 255.255.255.240
+no shutdown
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+no switchport
+ip address 10.255.2.2 255.255.255.252
+no shutdown
+exit
+interface GigabitEthernet0/2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 99
+no shutdown
+exit
+interface range FastEthernet0/1 - 8
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 99
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/10
+switchport mode access
+switchport access vlan 41
+spanning-tree portfast
+no shutdown
+exit
+end
+enable
+configure terminal
+ip route 0.0.0.0 0.0.0.0 10.255.2.1
+router ospf 1
+router-id 12.12.12.12
+network 10.2.0.0 0.0.255.255 area 0
+network 10.255.2.0 0.0.0.3 area 0
+exit
+end
+write memory
+
+
+! --- Device: ASW1 (switch_l2) ---
+enable
+configure terminal
+hostname ASW1
+no ip domain-lookup
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+
+
+! --- Device: ASW2 (switch_l2) ---
+enable
+configure terminal
+hostname ASW2
+no ip domain-lookup
+vlan 10
+name Management
+exit
+vlan 20
+name Corporate_Data
+exit
+vlan 30
+name Voice_VoIP
+exit
+vlan 40
+name DMZ_1
+exit
+vlan 41
+name DMZ_2
+exit
+vlan 50
+name Guest_WiFi
+exit
+vlan 99
+name Native_Trunk
+exit
+end
+enable
+configure terminal
+interface GigabitEthernet0/1
+switchport mode trunk
+switchport trunk native vlan 99
+no shutdown
+exit
+end
+enable
+configure terminal
+interface FastEthernet0/1
+switchport mode access
+switchport access vlan 20
+spanning-tree portfast
+no shutdown
+exit
+end
+write memory
+

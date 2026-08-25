@@ -1,0 +1,59 @@
+/* Custom Styling for Packet_XML Dark UI */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Canvas styling */
+#cy {
+  background: radial-gradient(circle, #101726 10%, #0b0f19 90%);
+  cursor: grab;
+}
+
+#cy:active {
+  cursor: grabbing;
+}
+
+/* Prompt chip button effect */
+.prompt-chip {
+  transition: all 0.2s ease-in-out;
+}
+.prompt-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+}
+
+/* Glassmorphism elements */
+.glass-panel {
+  background: rgba(22, 31, 48, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Pulsing effect for live bridge */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+  }
+}
+
+.bridge-active {
+  animation: pulse-glow 2s infinite ease-in-out;
+}

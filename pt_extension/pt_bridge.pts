@@ -1,0 +1,130 @@
+// =============================================================================
+// Cisco Packet Tracer - Packet_XML Live Bridge Script (.pts)
+// =============================================================================
+// Instrucciones de uso:
+// 1. Abre Cisco Packet Tracer.
+// 2. Ve al menú "Extensions" -> "Scripting" (o abre PTBuilder).
+// 3. Carga este archivo `pt_bridge.pts` y presiona "Run" / "Execute".
+// 4. El script se conectará automáticamente a tu servidor local en http://127.0.0.1:8000/api/bridge/poll
+//    y construirá/configurará en vivo cualquier red que diseñes en tu interfaz web con IA.
+// =============================================================================
+
+var SERVER_URL = "http://127.0.0.1:8000";
+var POLL_INTERVAL_MS = 3000;
+var createdDevices = {};
+
+function initBridge() {
+    print("[Packet_XML Bridge] Iniciando puente de comunicación con el servidor IA...");
+    pollServer();
+}
+
+function pollServer() {
+    try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", SERVER_URL + "/api/bridge/poll?client_id=pt_fedora_client", true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.has_task && response.task) {
+                    processDeploymentTask(response.task);
+                }
+            }
+        };
+        xhr.send();
+    } catch (e) {
+        print("[Packet_XML Bridge] Error al sondear el servidor: " + e);
+    }
+    
+    // Reprogramar siguiente sondeo
+    setTimeout(pollServer, POLL_INTERVAL_MS);
+}
+
+function processDeploymentTask(task) {
+    print("[Packet_XML Bridge] Procesando tarea: " + task.task_id + " (" + task.name + ")");
+    var batches = task.batches || {};
+
+    // 1. Crear Dispositivos
+    var devicesList = batches.devices || [];
+    for (var i = 0; i < devicesList.length; i++) {
+        var d = devicesList[i];
+        var ptModel = mapDeviceModel(d.type, d.model);
+        try {
+            if (typeof addDevice === "function") {
+                createdDevices[d.id] = addDevice(ptModel, d.x, d.y, d.label);
+            }
+            print(" -> Creado dispositivo: " + d.label + " (" + ptModel + ") en (" + d.x + ", " + d.y + ")");
+        } catch (err) {
+            print(" -> Error creando dispositivo " + d.id + ": " + err);
+        }
+    }
+
+    // 2. Conectar Enlaces (Cables)
+    var linksList = batches.links || [];
+    for (var j = 0; j < linksList.length; j++) {
+        var l = linksList[j];
+        try {
+            var srcDev = createdDevices[l.source];
+            var dstDev = createdDevices[l.target];
+            if (srcDev && dstDev && typeof addLink === "function") {
+                addLink(srcDev, l.src_port, dstDev, l.dst_port, l.cable_type);
+                print(" -> Conectado enlace: " + l.source + ":" + l.src_port + " <---> " + l.target + ":" + l.dst_port);
+            }
+        } catch (errLink) {
+            print(" -> Error creando enlace: " + errLink);
+        }
+    }
+
+    // 3. Aplicar Configuraciones IOS
+    var configsList = batches.configs || [];
+    for (var k = 0; k < configsList.length; k++) {
+        var c = configsList[k];
+        try {
+            var targetDev = createdDevices[c.device_id];
+            if (targetDev) {
+                if (c.action === "configure_ios" && typeof configureIosDevice === "function") {
+                    configureIosDevice(targetDev, c.commands);
+                    print(" -> Aplicada configuración Cisco IOS a: " + c.device_id);
+                } else if (c.action === "configure_ip" && typeof setIpConfig === "function") {
+                    setIpConfig(targetDev, c.ip, c.netmask, c.gateway, c.dns);
+                    print(" -> IP asignada a " + c.device_id + ": " + c.ip);
+                }
+            }
+        } catch (errCfg) {
+            print(" -> Error aplicando config a " + c.device_id + ": " + errCfg);
+        }
+    }
+
+    // Acknowledge al servidor
+    acknowledgeTask(task.task_id, true);
+}
+
+function mapDeviceModel(type, model) {
+    if (type === "router") return "2911";
+    if (type === "switch_l3") return "3560-24PS";
+    if (type === "switch_l2") return "2960-24TT";
+    if (type === "server") return "Server-PT";
+    if (type === "pc") return "PC-PT";
+    if (type === "laptop") return "Laptop-PT";
+    return model || "2911";
+}
+
+function acknowledgeTask(taskId, success) {
+    try {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", SERVER_URL + "/api/bridge/ack", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify({
+            task_id: taskId,
+            success: success,
+            stats: {
+                devices: Object.keys(createdDevices).length
+            }
+        }));
+        print("[Packet_XML Bridge] Tarea " + taskId + " completada y notificada.");
+    } catch (e) {
+        print("[Packet_XML Bridge] Error al confirmar tarea: " + e);
+    }
+}
+
+// Iniciar
+initBridge();

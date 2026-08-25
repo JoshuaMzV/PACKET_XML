@@ -1,0 +1,196 @@
+<?xml version="1.0" ?>
+<PACKET_TRACER_NETWORK version="8.2" name="Hierarchical 3-Tier Network (2R-2DSW-2ASW)" generator="Packet_XML Network IR Engine">
+  <METADATA>
+    <TOTAL_DEVICES>10</TOTAL_DEVICES>
+    <TOTAL_LINKS>10</TOTAL_LINKS>
+    <ROUTING_PROTOCOL>OSPF</ROUTING_PROTOCOL>
+    <BASE_NETWORK>10.0.0.0/16</BASE_NETWORK>
+  </METADATA>
+  <VLANS>
+    <VLAN id="20">
+      <NAME>Corporate_Data</NAME>
+      <NETWORK>10.0.0.0</NETWORK>
+      <PREFIX>27</PREFIX>
+      <NETMASK>255.255.255.224</NETMASK>
+      <GATEWAY>10.0.0.1</GATEWAY>
+      <LAYER3>True</LAYER3>
+    </VLAN>
+    <VLAN id="30">
+      <NAME>Voice_VoIP</NAME>
+      <NETWORK>10.0.0.32</NETWORK>
+      <PREFIX>27</PREFIX>
+      <NETMASK>255.255.255.224</NETMASK>
+      <GATEWAY>10.0.0.33</GATEWAY>
+      <LAYER3>True</LAYER3>
+    </VLAN>
+    <VLAN id="10">
+      <NAME>Management</NAME>
+      <NETWORK>10.0.0.64</NETWORK>
+      <PREFIX>28</PREFIX>
+      <NETMASK>255.255.255.240</NETMASK>
+      <GATEWAY>10.0.0.65</GATEWAY>
+      <LAYER3>True</LAYER3>
+    </VLAN>
+    <VLAN id="40">
+      <NAME>DMZ_1</NAME>
+      <NETWORK>10.0.0.80</NETWORK>
+      <PREFIX>28</PREFIX>
+      <NETMASK>255.255.255.240</NETMASK>
+      <GATEWAY>10.0.0.81</GATEWAY>
+      <LAYER3>True</LAYER3>
+    </VLAN>
+    <VLAN id="41">
+      <NAME>DMZ_2</NAME>
+      <NETWORK>10.0.0.96</NETWORK>
+      <PREFIX>28</PREFIX>
+      <NETMASK>255.255.255.240</NETMASK>
+      <GATEWAY>10.0.0.97</GATEWAY>
+      <LAYER3>True</LAYER3>
+    </VLAN>
+    <VLAN id="50">
+      <NAME>Guest_WiFi</NAME>
+      <NETWORK>10.0.0.112</NETWORK>
+      <PREFIX>28</PREFIX>
+      <NETMASK>255.255.255.240</NETMASK>
+      <GATEWAY>10.0.0.113</GATEWAY>
+      <LAYER3>True</LAYER3>
+    </VLAN>
+    <VLAN id="99">
+      <NAME>Native_Trunk</NAME>
+      <NETWORK>N/A</NETWORK>
+      <PREFIX>N/A</PREFIX>
+      <NETMASK>N/A</NETMASK>
+      <GATEWAY>N/A</GATEWAY>
+      <LAYER3>False</LAYER3>
+    </VLAN>
+  </VLANS>
+  <DEVICES>
+    <DEVICE id="R1" type="router" model="2911" layer="core">
+      <LABEL>R1</LABEL>
+      <POSITION_X>300</POSITION_X>
+      <POSITION_Y>90</POSITION_Y>
+    </DEVICE>
+    <DEVICE id="R2" type="router" model="2911" layer="core">
+      <LABEL>R2</LABEL>
+      <POSITION_X>620</POSITION_X>
+      <POSITION_Y>90</POSITION_Y>
+    </DEVICE>
+    <DEVICE id="DSW1" type="switch_l3" model="3560-24PS" layer="distribution">
+      <LABEL>DSW1</LABEL>
+      <POSITION_X>300</POSITION_X>
+      <POSITION_Y>260</POSITION_Y>
+    </DEVICE>
+    <DEVICE id="DSW2" type="switch_l3" model="3560-24PS" layer="distribution">
+      <LABEL>DSW2</LABEL>
+      <POSITION_X>620</POSITION_X>
+      <POSITION_Y>260</POSITION_Y>
+    </DEVICE>
+    <DEVICE id="ASW1" type="switch_l2" model="2960-24TT" layer="access">
+      <LABEL>ASW1</LABEL>
+      <POSITION_X>300</POSITION_X>
+      <POSITION_Y>430</POSITION_Y>
+    </DEVICE>
+    <DEVICE id="ASW2" type="switch_l2" model="2960-24TT" layer="access">
+      <LABEL>ASW2</LABEL>
+      <POSITION_X>620</POSITION_X>
+      <POSITION_Y>430</POSITION_Y>
+    </DEVICE>
+    <DEVICE id="PC1" type="pc" model="PC-PT" layer="endpoint">
+      <LABEL>PC1</LABEL>
+      <POSITION_X>250</POSITION_X>
+      <POSITION_Y>550</POSITION_Y>
+      <IP_CONFIG>
+        <IP_ADDRESS>10.0.0.2</IP_ADDRESS>
+        <NETMASK>255.255.255.224</NETMASK>
+        <GATEWAY>10.0.0.1</GATEWAY>
+        <DNS>8.8.8.8</DNS>
+        <VLAN>20</VLAN>
+      </IP_CONFIG>
+    </DEVICE>
+    <DEVICE id="PC2" type="pc" model="PC-PT" layer="endpoint">
+      <LABEL>PC2</LABEL>
+      <POSITION_X>570</POSITION_X>
+      <POSITION_Y>550</POSITION_Y>
+      <IP_CONFIG>
+        <IP_ADDRESS>10.0.0.3</IP_ADDRESS>
+        <NETMASK>255.255.255.224</NETMASK>
+        <GATEWAY>10.0.0.1</GATEWAY>
+        <DNS>8.8.8.8</DNS>
+        <VLAN>20</VLAN>
+      </IP_CONFIG>
+    </DEVICE>
+    <DEVICE id="SRV1" type="server" model="Server-PT" layer="dmz">
+      <LABEL>SRV1</LABEL>
+      <POSITION_X>120</POSITION_X>
+      <POSITION_Y>260</POSITION_Y>
+      <IP_CONFIG>
+        <IP_ADDRESS>10.0.0.82</IP_ADDRESS>
+        <NETMASK>255.255.255.240</NETMASK>
+        <GATEWAY>10.0.0.81</GATEWAY>
+        <DNS>127.0.0.1</DNS>
+        <VLAN>40</VLAN>
+      </IP_CONFIG>
+    </DEVICE>
+    <DEVICE id="SRV2" type="server" model="Server-PT" layer="dmz">
+      <LABEL>SRV2</LABEL>
+      <POSITION_X>800</POSITION_X>
+      <POSITION_Y>260</POSITION_Y>
+      <IP_CONFIG>
+        <IP_ADDRESS>10.0.0.98</IP_ADDRESS>
+        <NETMASK>255.255.255.240</NETMASK>
+        <GATEWAY>10.0.0.97</GATEWAY>
+        <DNS>127.0.0.1</DNS>
+        <VLAN>41</VLAN>
+      </IP_CONFIG>
+    </DEVICE>
+  </DEVICES>
+  <LINKS>
+    <LINK id="link_DSW1_ASW1" type="Copper_Straight" mode="trunk">
+      <SOURCE port="FastEthernet0/1">DSW1</SOURCE>
+      <TARGET port="GigabitEthernet0/1">ASW1</TARGET>
+      <NATIVE_VLAN>99</NATIVE_VLAN>
+    </LINK>
+    <LINK id="link_DSW2_ASW2" type="Copper_Straight" mode="trunk">
+      <SOURCE port="FastEthernet0/1">DSW2</SOURCE>
+      <TARGET port="GigabitEthernet0/1">ASW2</TARGET>
+      <NATIVE_VLAN>99</NATIVE_VLAN>
+    </LINK>
+    <LINK id="link_dist_cross_1_2" type="Copper_Cross" mode="trunk">
+      <SOURCE port="GigabitEthernet0/2">DSW1</SOURCE>
+      <TARGET port="GigabitEthernet0/2">DSW2</TARGET>
+      <NATIVE_VLAN>99</NATIVE_VLAN>
+    </LINK>
+    <LINK id="link_R1_DSW1" type="Copper_Straight" mode="routed">
+      <SOURCE port="GigabitEthernet0/0">R1</SOURCE>
+      <TARGET port="GigabitEthernet0/1">DSW1</TARGET>
+    </LINK>
+    <LINK id="link_R2_DSW2" type="Copper_Straight" mode="routed">
+      <SOURCE port="GigabitEthernet0/0">R2</SOURCE>
+      <TARGET port="GigabitEthernet0/1">DSW2</TARGET>
+    </LINK>
+    <LINK id="link_core_1_2" type="Copper_Cross" mode="routed">
+      <SOURCE port="GigabitEthernet0/2">R1</SOURCE>
+      <TARGET port="GigabitEthernet0/2">R2</TARGET>
+    </LINK>
+    <LINK id="link_ASW1_PC1" type="Copper_Straight" mode="access">
+      <SOURCE port="FastEthernet0/1">ASW1</SOURCE>
+      <TARGET port="FastEthernet0">PC1</TARGET>
+      <VLAN>20</VLAN>
+    </LINK>
+    <LINK id="link_ASW2_PC2" type="Copper_Straight" mode="access">
+      <SOURCE port="FastEthernet0/1">ASW2</SOURCE>
+      <TARGET port="FastEthernet0">PC2</TARGET>
+      <VLAN>20</VLAN>
+    </LINK>
+    <LINK id="link_srv_SRV1" type="Copper_Straight" mode="access">
+      <SOURCE port="FastEthernet0/10">DSW1</SOURCE>
+      <TARGET port="FastEthernet0">SRV1</TARGET>
+      <VLAN>40</VLAN>
+    </LINK>
+    <LINK id="link_srv_SRV2" type="Copper_Straight" mode="access">
+      <SOURCE port="FastEthernet0/10">DSW2</SOURCE>
+      <TARGET port="FastEthernet0">SRV2</TARGET>
+      <VLAN>41</VLAN>
+    </LINK>
+  </LINKS>
+</PACKET_TRACER_NETWORK>
