@@ -1,0 +1,40 @@
+<PACKETTRACER canDelete="false" subGroup="Miscellaneous">
+ <VERSION>5.3.3.0010</VERSION>
+ <NETWORK>
+  <DEVICES>
+   <DEVICE>
+    <ENGINE>
+     <TYPE model="1841">Router</TYPE>
+     <NAME>1841 WIC-2T</NAME>
+     <IMAGEPATH>EMPTY</IMAGEPATH>
+     <DESCRIPTION>1841 with WIC-2T</DESCRIPTION>
+     <MODULE>
+      <TYPE>eNonRemovableModule</TYPE>
+      <MODEL/>
+      <SLOT>
+       <TYPE>eNonRemovableModule</TYPE>
+       <MODULE>
+        <TYPE>eNonRemovableModule</TYPE>
+        <MODEL/>
+        <SLOT>
+         <TYPE>eInterfaceCard</TYPE>
+         <MODULE>
+          <TYPE>eInterfaceCard</TYPE>
+          <MODEL>WIC-2T</MODEL>
+         </MODULE>
+        </SLOT>
+        <SLOT>
+         <TYPE>eInterfaceCard</TYPE>
+         <MODULE>
+          <TYPE>eInterfaceCard</TYPE>
+          <MODEL>WIC-Cover</MODEL>
+         </MODULE>
+        </SLOT>
+       </MODULE>
+      </SLOT>
+     </MODULE>
+    </ENGINE>
+   </DEVICE>
+  </DEVICES>
+ </NETWORK>
+</PACKETTRACER>

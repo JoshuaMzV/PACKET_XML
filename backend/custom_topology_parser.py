@@ -14,16 +14,19 @@ class CustomTopologyParser:
         for v in raw_vlans:
             v_id = v.get("vlan", v.get("id", 1))
             mask = v.get("mask", "255.255.255.0")
-            # Basic prefix calculation for common masks
-            prefix = 24 if mask == "255.255.255.0" else (8 if mask == "255.0.0.0" else 16)
+            prefix = v.get("prefix") or (24 if mask == "255.255.255.0" else (8 if mask == "255.0.0.0" else 16))
+            hosts = v.get("hosts", 254)
             clean_vlans.append({
                 "vlan": v_id,
                 "name": v.get("name", f"VLAN{v_id}"),
                 "network": v.get("network", "0.0.0.0"),
                 "mask": mask,
-                "prefix": v.get("prefix", prefix),
+                "netmask": v.get("netmask", mask),
+                "prefix": prefix,
                 "gateway": v.get("gateway", "N/A"),
-                "hosts": v.get("hosts", 254)
+                "hosts": hosts,
+                "total_usable": v.get("total_usable", hosts),
+                "requested_hosts": v.get("requested_hosts", hosts)
             })
 
         ir = {
@@ -46,6 +49,23 @@ class CustomTopologyParser:
         x_counters = {"router": 500, "switch_l3": 400, "switch_l2": 300, "server": 600, "pc": 100, "laptop": 200}
         y_levels = {"router": 100, "switch_l3": 250, "switch_l2": 400, "server": 250, "pc": 550, "laptop": 550}
 
+        # Collect all DNS servers and DNS records defined across any servers
+        dns_servers_list = []
+        dns_records_list = []
+        for dev_item in params.get("devices", []):
+            if dev_item.get("type") == "server":
+                s_ip = dev_item.get("ip")
+                if s_ip and s_ip not in dns_servers_list:
+                    dns_servers_list.append(s_ip)
+                svcs = dev_item.get("services", {})
+                if isinstance(svcs, dict) and "dns" in svcs:
+                    for rec in svcs["dns"]:
+                        if rec not in dns_records_list:
+                            dns_records_list.append(rec)
+
+        default_dns_ip = dns_servers_list[0] if dns_servers_list else "10.10.4.10"
+        vlan_host_counters = {}
+
         for d in params.get("devices", []):
             d_type = d.get("type", "pc")
             dev_id = d.get("id", "Unknown")
@@ -56,9 +76,10 @@ class CustomTopologyParser:
                 "type": d_type,
                 "model": "2911" if d_type == "router" else ("3650-24PS" if d_type == "switch_l3" else ("2960-24TT" if d_type == "switch_l2" else "PC-PT")),
                 "layer": "core" if d_type == "router" else ("distribution" if d_type == "switch_l3" else ("access" if d_type == "switch_l2" else "endpoint")),
-                "x": x_counters.get(d_type, 100),
-                "y": y_levels.get(d_type, 100),
-                "ios_config": []
+                "ip": d.get("ip", "Gateway / RoaS" if d_type == "router" else ("SVI Gateway (L3)" if d_type == "switch_l3" else ("Switch L2 (Trunk/Access)" if d_type == "switch_l2" else "DHCP / Dynamic"))),
+                "x": d.get("x", x_counters.get(d_type, 100)),
+                "y": d.get("y", y_levels.get(d_type, 100)),
+                "ios_config": list(d.get("ios_config", []))
             }
             if d_type == "server": dev_obj["model"] = "Server-PT"
             elif d_type == "laptop": dev_obj["model"] = "Laptop-PT"
@@ -69,41 +90,145 @@ class CustomTopologyParser:
                 if d.get("roas", False):
                     dev_obj["ios_config"].extend(["interface GigabitEthernet0/0", " no shutdown", " no ip address"])
                     for v in ir["vlans"]:
-                        vid = v.get("id")
+                        vid = v.get("vlan", v.get("id"))
                         if vid and vid != 99:
                             dev_obj["ios_config"].extend([
                                 f"interface GigabitEthernet0/0.{vid}",
                                 f" encapsulation dot1Q {vid}",
                                 f" ip address {v.get('gateway')} {v.get('mask')}"
                             ])
-                            # Add DHCP helpers if defined
                             for helper in d.get("dhcp_helpers", []):
                                 dev_obj["ios_config"].append(f" ip helper-address {helper}")
+                if dns_records_list:
+                    dev_obj["ios_config"].append("ip domain lookup")
+                    for rec in dns_records_list:
+                        dev_obj["ios_config"].append(f"ip host {rec['name']} {rec['ip']}")
+                if d.get("ospf"):
+                    dev_obj["ios_config"].extend([
+                        "router ospf 1",
+                        f" router-id {d.get('router_id', '1.1.1.1')}",
+                        f" network {d.get('ospf_net', '10.10.0.0 0.0.255.255')} area 0"
+                    ])
             
-            elif d_type in ["switch_l2", "switch_l3"]:
+            elif d_type == "switch_l3":
+                dev_obj["ios_config"].append("ip routing")
+                dev_obj["ios_config"].append("spanning-tree vlan 1-4094 priority 4096")
+                if dns_records_list:
+                    dev_obj["ios_config"].extend([
+                        "ip dns server",
+                        "ip domain lookup"
+                    ])
+                    for rec in dns_records_list:
+                        dev_obj["ios_config"].append(f"ip host {rec['name']} {rec['ip']}")
                 if d.get("vtp_mode"):
                     dev_obj["ios_config"].extend([
                         f"vtp mode {d['vtp_mode']}",
                         f"vtp domain {d.get('vtp_domain', 'DEFAULT')}",
                         "vtp password cisco"
                     ])
+                if d.get("svis", True):
+                    for v in ir["vlans"]:
+                        vid = v.get("vlan", v.get("id"))
+                        if vid:
+                            dev_obj["ios_config"].extend([
+                                f"interface Vlan{vid}",
+                                f" ip address {v.get('gateway')} {v.get('mask')}",
+                                " no shutdown"
+                            ])
+                            if vid != 99:
+                                for helper in d.get("dhcp_helpers", []):
+                                    dev_obj["ios_config"].append(f" ip helper-address {helper}")
+                if d.get("dhcp_pools", True):
+                    for v in ir["vlans"]:
+                        vgw = v.get("gateway")
+                        if vgw and vgw != "0.0.0.0":
+                            gw_parts = vgw.split(".")
+                            gw_base = int(gw_parts[3])
+                            dev_obj["ios_config"].append(f"ip dhcp excluded-address {vgw} {'.'.join(gw_parts[:3])}.{gw_base + 9}")
+                    for s_ip in dns_servers_list:
+                        dev_obj["ios_config"].append(f"ip dhcp excluded-address {s_ip}")
+
+                    for v in ir["vlans"]:
+                        vid = v.get("vlan", v.get("id"))
+                        if vid and vid != 99:
+                            vname = v.get("name", f"VLAN_{vid}")
+                            vnet = v.get("network")
+                            vmask = v.get("netmask", v.get("mask", "255.255.255.0"))
+                            vgw = v.get("gateway")
+                            dev_obj["ios_config"].extend([
+                                f"ip dhcp pool POOL_{vname}",
+                                f" network {vnet} {vmask}",
+                                f" default-router {vgw}",
+                                f" dns-server {default_dns_ip}"
+                            ])
+
+                if d.get("ospf"):
+                    dev_obj["ios_config"].extend([
+                        "router ospf 1",
+                        f" router-id {d.get('router_id', '2.2.2.2')}",
+                        f" network {d.get('ospf_net', '10.10.0.0 0.0.255.255')} area 0"
+                    ])
+
+            elif d_type == "switch_l2":
+                if d.get("vtp_mode"):
+                    dev_obj["ios_config"].extend([
+                        f"vtp mode {d['vtp_mode']}",
+                        f"vtp domain {d.get('vtp_domain', 'DEFAULT')}",
+                        "vtp password cisco"
+                    ])
+                # Configure Management SVI on VLAN 99
+                mgmt_vlan = next((v for v in ir["vlans"] if v.get("vlan") == 99 or v.get("id") == 99), None)
+                if mgmt_vlan and mgmt_vlan.get("gateway"):
+                    sw_l2_idx = len([x for x in ir["devices"] if x.get("type") == "switch_l2"])
+                    gw_parts = mgmt_vlan["gateway"].split(".")
+                    gw_last = int(gw_parts[3])
+                    mgmt_ip = f"{'.'.join(gw_parts[:3])}.{gw_last + 1 + sw_l2_idx}"
+                    dev_obj["ios_config"].extend([
+                        "interface Vlan99",
+                        f" ip address {mgmt_ip} {mgmt_vlan.get('mask', '255.255.255.224')}",
+                        " no shutdown",
+                        f"ip default-gateway {mgmt_vlan['gateway']}"
+                    ])
             
             elif d_type == "server":
                 dev_obj["ip"] = d.get("ip", "0.0.0.0")
                 dev_obj["netmask"] = d.get("netmask", "255.255.255.0")
                 dev_obj["gateway"] = d.get("gateway", "0.0.0.0")
-                dev_obj["dns"] = d.get("dns", "8.8.8.8")
+                dev_obj["dns"] = d.get("dns", default_dns_ip)
                 if "services" in d:
                     dev_obj["services"] = d["services"]
             
             elif d_type in ["pc", "laptop"]:
-                if d.get("dhcp", False):
-                    dev_obj["dhcp"] = True
+                dev_obj["dhcp"] = d.get("dhcp", True)
+                vlan_info = next((v for v in ir["vlans"] if v.get("vlan") == d.get("vlan") or v.get("id") == d.get("vlan")), None)
+                if vlan_info:
+                    vid = vlan_info.get("vlan", vlan_info.get("id"))
+                    vlan_host_counters[vid] = vlan_host_counters.get(vid, 0) + 1
+                    host_offset = 9 + vlan_host_counters[vid] * 10
+                    dev_obj["gateway"] = d.get("gateway", vlan_info.get("gateway", "0.0.0.0"))
+                    dev_obj["netmask"] = d.get("netmask", vlan_info.get("netmask", "255.255.255.0"))
+                    dev_obj["dns"] = d.get("dns", default_dns_ip)
+                    if d.get("ip"):
+                        dev_obj["ip"] = d["ip"]
+                    elif dev_obj["gateway"] != "0.0.0.0":
+                        gw_parts = dev_obj["gateway"].split(".")
+                        gw_last = int(gw_parts[3])
+                        dev_obj["ip"] = f"{'.'.join(gw_parts[:3])}.{gw_last + host_offset}"
                 else:
                     dev_obj["ip"] = d.get("ip", "0.0.0.0")
                     dev_obj["netmask"] = d.get("netmask", "255.255.255.0")
                     dev_obj["gateway"] = d.get("gateway", "0.0.0.0")
-                    dev_obj["dns"] = d.get("dns", "8.8.8.8")
+                    dev_obj["dns"] = d.get("dns", default_dns_ip)
+
+            # Declare VLANs on switches so access ports forward properly
+            if d_type in ["switch_l2", "switch_l3"]:
+                for v in ir["vlans"]:
+                    vid = v.get("vlan", v.get("id"))
+                    if vid:
+                        dev_obj["ios_config"].extend([
+                            f"vlan {vid}",
+                            f" name {v.get('name', f'VLAN_{vid}')}"
+                        ])
 
             ir["devices"].append(dev_obj)
 
@@ -123,8 +248,30 @@ class CustomTopologyParser:
             t_type = tgt_dev.get("type")
 
             # Determine interface names
-            s_port = f"GigabitEthernet0/{port_counters[src_id]}" if s_type in ["router", "switch_l3"] else f"FastEthernet0/{port_counters[src_id]}"
-            t_port = f"GigabitEthernet0/{port_counters[tgt_id]}" if t_type in ["router", "switch_l3"] else f"FastEthernet0/{port_counters[tgt_id]}"
+            if s_type == "switch_l3":
+                s_port = f"GigabitEthernet1/0/{port_counters[src_id]}"
+            elif s_type == "router":
+                s_port = f"GigabitEthernet0/{port_counters[src_id]}"
+            elif s_type in ["pc", "laptop", "server"]:
+                s_port = "FastEthernet0"
+            else:
+                # switch_l2: use Gigabit port for switch-to-switch uplink, otherwise FastEthernet
+                if t_type in ["switch_l3", "switch_l2", "router"] and port_counters[src_id] == 1:
+                    s_port = "GigabitEthernet0/1"
+                else:
+                    s_port = f"FastEthernet0/{port_counters[src_id]}"
+
+            if t_type == "switch_l3":
+                t_port = f"GigabitEthernet1/0/{port_counters[tgt_id]}"
+            elif t_type == "router":
+                t_port = f"GigabitEthernet0/{port_counters[tgt_id]}"
+            elif t_type in ["pc", "laptop", "server"]:
+                t_port = "FastEthernet0"
+            else:
+                if s_type in ["switch_l3", "switch_l2", "router"] and port_counters[tgt_id] == 1:
+                    t_port = "GigabitEthernet0/1"
+                else:
+                    t_port = f"FastEthernet0/{port_counters[tgt_id]}"
             
             if s_type == "router" and t_type in ["switch_l2", "switch_l3"]: s_port = "GigabitEthernet0/0"
             if t_type == "router" and s_type in ["switch_l2", "switch_l3"]: t_port = "GigabitEthernet0/0"
@@ -132,28 +279,38 @@ class CustomTopologyParser:
             ir["links"].append({
                 "id": f"link_{src_id}_{tgt_id}",
                 "source": src_id, "target": tgt_id,
-                "src_port": "FastEthernet0" if s_type in ["pc", "laptop", "server"] else s_port,
-                "dst_port": "FastEthernet0" if t_type in ["pc", "laptop", "server"] else t_port,
+                "src_port": s_port,
+                "dst_port": t_port,
                 "type": "Copper_Straight"
             })
 
             port_counters[src_id] += 1
             port_counters[tgt_id] += 1
 
-            # Configure switchports (Trunk or Access)
+            # Configure switchports (Trunk or Access) with explicit no shutdown
             is_trunk = l.get("is_trunk", False)
             if s_type in ["switch_l2", "switch_l3"]:
                 ir_dev = next(d for d in ir["devices"] if d["id"] == src_id)
                 if is_trunk:
-                    ir_dev["ios_config"].extend([f"interface {s_port}", " switchport mode trunk"])
+                    if s_type == "switch_l3":
+                        ir_dev["ios_config"].extend([f"interface {s_port}", " switchport trunk encapsulation dot1q", " switchport mode trunk", " no shutdown"])
+                    else:
+                        ir_dev["ios_config"].extend([f"interface {s_port}", " switchport mode trunk", " no shutdown"])
                 elif "vlan" in tgt_dev:
-                    ir_dev["ios_config"].extend([f"interface {s_port}", " switchport mode access", f" switchport access vlan {tgt_dev['vlan']}"])
+                    ir_dev["ios_config"].extend([f"interface {s_port}", " switchport mode access", f" switchport access vlan {tgt_dev['vlan']}", " no shutdown"])
+                else:
+                    ir_dev["ios_config"].extend([f"interface {s_port}", " no shutdown"])
 
             if t_type in ["switch_l2", "switch_l3"]:
                 ir_dev = next(d for d in ir["devices"] if d["id"] == tgt_id)
                 if is_trunk:
-                    ir_dev["ios_config"].extend([f"interface {t_port}", " switchport mode trunk"])
+                    if t_type == "switch_l3":
+                        ir_dev["ios_config"].extend([f"interface {t_port}", " switchport trunk encapsulation dot1q", " switchport mode trunk", " no shutdown"])
+                    else:
+                        ir_dev["ios_config"].extend([f"interface {t_port}", " switchport mode trunk", " no shutdown"])
                 elif "vlan" in src_dev:
-                    ir_dev["ios_config"].extend([f"interface {t_port}", " switchport mode access", f" switchport access vlan {src_dev['vlan']}"])
+                    ir_dev["ios_config"].extend([f"interface {t_port}", " switchport mode access", f" switchport access vlan {src_dev['vlan']}", " no shutdown"])
+                else:
+                    ir_dev["ios_config"].extend([f"interface {t_port}", " no shutdown"])
 
         return ir

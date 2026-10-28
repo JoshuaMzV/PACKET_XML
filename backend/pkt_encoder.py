@@ -215,6 +215,11 @@ class PKTEncoder:
                         ipv6_def_ll = port.find("IPV6_DEFAULT_LINK_LOCAL")
                         if ipv6_def_ll is not None: ipv6_def_ll.text = f"FE80::201:{hex_idx}FF:FE{hex_port[:2]}:{hex_port[2:]}"
 
+                    # Assign Unique Chassis Base MAC (BUILD_IN_ADDR) so Spanning Tree sees distinct bridges
+                    for bia_chassis in d_elem.iter("BUILD_IN_ADDR"):
+                        hex_idx = f"{idx+1:04X}"
+                        bia_chassis.text = f"0002.{hex_idx[:2]}{hex_idx[2:]}.0001"
+
                     # 1. Populate Cisco Router & Switch Running/Startup Configs
                     all_chunks = dev.get("phase2_chunks", []) + dev.get("phase3_chunks", []) + dev.get("phase4_chunks", [])
                     raw_lines = []
@@ -273,26 +278,26 @@ class PKTEncoder:
                                 elif is_dhcp:
                                     ET.SubElement(port, "PORT_DHCP_ENABLE").text = "true"
 
-                                if not is_dhcp:
-                                    # 1. Set IP
+                                # Always write IP, Subnet, Gateway, and DNS as initial lease
+                                if dev_ip:
                                     ip_elem = port.find("IP")
                                     if ip_elem is not None: ip_elem.text = dev_ip
-                                    elif dev_ip: ET.SubElement(port, "IP").text = dev_ip
-    
-                                    # 2. Set Subnet
+                                    else: ET.SubElement(port, "IP").text = dev_ip
+
+                                if dev_mask:
                                     subnet_elem = port.find("SUBNET")
                                     if subnet_elem is not None: subnet_elem.text = dev_mask
-                                    elif dev_mask: ET.SubElement(port, "SUBNET").text = dev_mask
-    
-                                    # 3. Set PORT_GATEWAY
+                                    else: ET.SubElement(port, "SUBNET").text = dev_mask
+
+                                if gw:
                                     port_gw = port.find("PORT_GATEWAY")
                                     if port_gw is not None: port_gw.text = gw
-                                    elif gw: ET.SubElement(port, "PORT_GATEWAY").text = gw
-    
-                                    # 4. Set PORT_DNS
+                                    else: ET.SubElement(port, "PORT_GATEWAY").text = gw
+
+                                if dns:
                                     port_dns = port.find("PORT_DNS")
                                     if port_dns is not None: port_dns.text = dns
-                                    elif dns: ET.SubElement(port, "PORT_DNS").text = dns
+                                    else: ET.SubElement(port, "PORT_DNS").text = dns
 
                         # 4. Server-PT Services Injection (DHCP, DNS, HTTP, TFTP)
                         if model_name == "Server-PT" and "services" in dev:
@@ -305,6 +310,32 @@ class PKTEncoder:
                                 en = http.find("ENABLED")
                                 if en is None: en = ET.SubElement(http, "ENABLED")
                                 en.text = "1"
+                                # Custom institutional HTML for index.html
+                                for f_node in eng.iter("FILE"):
+                                    fn = f_node.find("NAME")
+                                    if fn is not None and fn.text == "index.html":
+                                        fc = f_node.find("FILE_CONTENT")
+                                        if fc is not None:
+                                            txt = fc.find("TEXT")
+                                            if txt is None: txt = ET.SubElement(fc, "TEXT")
+                                            txt.text = (
+                                                "<html>\n"
+                                                "<center><font size='+2' color='#003366'><b>UNIVERSIDAD MARIANO GÁLVEZ DE GUATEMALA</b></font></center>\n"
+                                                "<center><font size='+1' color='#cc9900'><b>Campus Universitario Inteligente - Portal Central</b></font></center>\n"
+                                                "<hr>\n"
+                                                "<h3>Estado de la Infraestructura Cisco Enterprise:</h3>\n"
+                                                "<ul>\n"
+                                                "  <li><b>Portal Web Institucional:</b> campus.umg.edu.gt (Operativo)</li>\n"
+                                                "  <li><b>Servidor DNS Central:</b> 10.10.4.10 (Activo)</li>\n"
+                                                "  <li><b>Broker IoT MQTT:</b> mqtt.umg.edu.gt:1883 (Activo)</li>\n"
+                                                "  <li><b>Core L3 / Gateway:</b> 10.10.4.1 (VLAN 50 Servidores)</li>\n"
+                                                "  <li><b>VLANs de Campus:</b> Estudiantes (30), Docentes (20), Labs (40), IoT (60), Admin (10), Voz (70)</li>\n"
+                                                "</ul>\n"
+                                                "<hr>\n"
+                                                "<center><font size='-1' color='gray'>Cisco Packet Tracer 9.0 Simulation - UMG 2026</font></center>\n"
+                                                "</html>"
+                                            )
+
                                 
                             # TFTP
                             if "tftp" in svcs:
@@ -323,11 +354,23 @@ class PKTEncoder:
                                 en.text = "1"
                                 db = dns_node.find("NAMESERVER-DATABASE")
                                 if db is None: db = ET.SubElement(dns_node, "NAMESERVER-DATABASE")
+                                db.clear()
                                 for rec in svcs["dns"]:
-                                    r = ET.SubElement(db, "RECORD")
+                                    r = ET.SubElement(db, "RESOURCE-RECORD")
+                                    rec_type = rec.get("type", "A-REC")
+                                    if rec_type in ["A", "0", "A-Record", "A_RECORD", 0]:
+                                        rec_type = "A-REC"
+                                    ET.SubElement(r, "TYPE").text = rec_type
                                     ET.SubElement(r, "NAME").text = rec.get("name", "")
-                                    ET.SubElement(r, "TYPE").text = "0"
-                                    ET.SubElement(r, "ADDRESS").text = rec.get("ip", "")
+                                    ET.SubElement(r, "TTL").text = str(rec.get("ttl", "86400"))
+                                    if rec_type == "A-REC":
+                                        ET.SubElement(r, "IPADDRESS").text = rec.get("ip", "")
+                                    elif rec_type == "CNAME":
+                                        ET.SubElement(r, "HOSTNAME").text = rec.get("hostname", rec.get("ip", ""))
+                                    elif rec_type == "NS":
+                                        ET.SubElement(r, "SERVER-NAME").text = rec.get("server_name", rec.get("name", ""))
+                                    elif rec_type == "AAAA-REC":
+                                        ET.SubElement(r, "IPV6ADDRESS").text = rec.get("ipv6", rec.get("ip", ""))
                                     
                             # DHCP
                             if "dhcp" in svcs:

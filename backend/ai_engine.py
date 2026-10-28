@@ -103,7 +103,7 @@ class AIEngine:
 
         if model_provider == "ollama":
             try:
-                async with httpx.AsyncClient(timeout=60.0) as client:
+                async with httpx.AsyncClient(timeout=120.0) as client:
                     payload = {
                         "model": model_name,
                         "messages": [
@@ -115,10 +115,13 @@ class AIEngine:
                     }
                     res = await client.post(f"{cls.OLLAMA_BASE_URL}/api/chat", json=payload)
                     if res.status_code == 200:
-                        content = res.json().get("message", {}).get("content", "{}")
-                        design_params = json.loads(content)
+                        raw_c = res.json().get("message", {}).get("content", "{}").strip()
+                        if raw_c.startswith("```"):
+                            raw_c = re.sub(r"^```(?:json)?\s*", "", raw_c, flags=re.MULTILINE)
+                            raw_c = re.sub(r"```\s*$", "", raw_c, flags=re.MULTILINE).strip()
+                        design_params = json.loads(raw_c)
             except Exception as e:
-                print(f"[AIEngine] Ollama call failed: {e}. Falling back to heuristic parser.")
+                print(f"[AIEngine] Ollama call failed ({type(e).__name__}: {e}). Falling back to smart dynamic parser.")
 
         # Fallback / Smart Heuristic Parser if LLM output was empty or failed
         if not design_params:
@@ -249,6 +252,92 @@ class AIEngine:
         p_lower = prompt.lower()
         
 
+        # --- NEW: Check for UMG Campus Universitario Inteligente ---
+        if any(k in p_lower for k in ["umg", "campus", "universit", "edificio a", "aulas", "laboratorios"]):
+            return {
+                "topology_type": "custom",
+                "name": "Campus Universitario Inteligente - UMG",
+                "vlans": [
+                    {"vlan": 30, "name": "ESTUDIANTES", "network": "10.10.0.0", "mask": "255.255.255.0", "prefix": 24, "gateway": "10.10.0.1", "hosts": 250},
+                    {"vlan": 40, "name": "LABORATORIOS", "network": "10.10.1.0", "mask": "255.255.255.0", "prefix": 24, "gateway": "10.10.1.1", "hosts": 180},
+                    {"vlan": 80, "name": "INVITADOS", "network": "10.10.2.0", "mask": "255.255.255.128", "prefix": 25, "gateway": "10.10.2.1", "hosts": 100},
+                    {"vlan": 60, "name": "IOT", "network": "10.10.2.128", "mask": "255.255.255.128", "prefix": 25, "gateway": "10.10.2.129", "hosts": 100},
+                    {"vlan": 10, "name": "ADMIN", "network": "10.10.3.0", "mask": "255.255.255.128", "prefix": 25, "gateway": "10.10.3.1", "hosts": 80},
+                    {"vlan": 20, "name": "DOCENTES", "network": "10.10.3.128", "mask": "255.255.255.192", "prefix": 26, "gateway": "10.10.3.129", "hosts": 60},
+                    {"vlan": 70, "name": "VOZ", "network": "10.10.3.192", "mask": "255.255.255.192", "prefix": 26, "gateway": "10.10.3.193", "hosts": 40},
+                    {"vlan": 50, "name": "SERVIDORES", "network": "10.10.4.0", "mask": "255.255.255.224", "prefix": 27, "gateway": "10.10.4.1", "hosts": 30},
+                    {"vlan": 99, "name": "MGMT_GESTION", "network": "10.10.4.32", "mask": "255.255.255.224", "prefix": 27, "gateway": "10.10.4.33", "hosts": 20}
+                ],
+                "devices": [
+                    {"id": "R1_CORE", "name": "R1-CORE-PERIMETRAL", "type": "router", "x": 500, "y": 70, "ospf": True, "router_id": "1.1.1.1", "ospf_net": "10.10.0.0 0.0.255.255", "ios_config": ["interface GigabitEthernet0/0", " ip address 10.10.4.65 255.255.255.252", " no shutdown"]},
+                    {"id": "SW_CORE", "name": "SW-CORE-L3-3650", "type": "switch_l3", "x": 500, "y": 190, "svis": True, "ospf": True, "router_id": "2.2.2.2", "ospf_net": "10.10.0.0 0.0.255.255", "dhcp_helpers": ["10.10.4.10"], "ios_config": ["interface GigabitEthernet1/0/1", " no switchport", " ip address 10.10.4.66 255.255.255.252", " no shutdown"]},
+                    
+                    {
+                        "id": "SRV_DHCP_DNS", "name": "SRV-DHCP-DNS", "type": "server", "vlan": 50, "ip": "10.10.4.10", "netmask": "255.255.255.224", "gateway": "10.10.4.1", "dns": "10.10.4.10", "x": 340, "y": 190,
+                        "services": {
+                            "dns": [
+                                {"name": "campus.umg.edu.gt", "ip": "10.10.4.11"},
+                                {"name": "mqtt.umg.edu.gt", "ip": "10.10.4.12"}
+                            ],
+                            "dhcp": [
+                                {"name": "VLAN30_ESTUDIANTES", "network": "10.10.0.0", "mask": "255.255.255.0", "gw": "10.10.0.1", "dns": "10.10.4.10", "start_ip": "10.10.0.10", "end_ip": "10.10.0.250", "tftp": "10.10.4.11"},
+                                {"name": "VLAN40_LABS", "network": "10.10.1.0", "mask": "255.255.255.0", "gw": "10.10.1.1", "dns": "10.10.4.10", "start_ip": "10.10.1.10", "end_ip": "10.10.1.250", "tftp": "10.10.4.11"},
+                                {"name": "VLAN80_INVITADOS", "network": "10.10.2.0", "mask": "255.255.255.128", "gw": "10.10.2.1", "dns": "10.10.4.10", "start_ip": "10.10.2.10", "end_ip": "10.10.2.120", "tftp": "10.10.4.11"},
+                                {"name": "VLAN60_IOT", "network": "10.10.2.128", "mask": "255.255.255.128", "gw": "10.10.2.129", "dns": "10.10.4.10", "start_ip": "10.10.2.140", "end_ip": "10.10.2.250", "tftp": "10.10.4.11"},
+                                {"name": "VLAN10_ADMIN", "network": "10.10.3.0", "mask": "255.255.255.128", "gw": "10.10.3.1", "dns": "10.10.4.10", "start_ip": "10.10.3.10", "end_ip": "10.10.3.120", "tftp": "10.10.4.11"},
+                                {"name": "VLAN20_DOCENTES", "network": "10.10.3.128", "mask": "255.255.255.192", "gw": "10.10.3.129", "dns": "10.10.4.10", "start_ip": "10.10.3.140", "end_ip": "10.10.3.180", "tftp": "10.10.4.11"},
+                                {"name": "VLAN70_VOZ", "network": "10.10.3.192", "mask": "255.255.255.192", "gw": "10.10.3.193", "dns": "10.10.4.10", "start_ip": "10.10.3.200", "end_ip": "10.10.3.250", "tftp": "10.10.4.11"}
+                            ]
+                        }
+                    },
+                    {
+                        "id": "SRV_WEB_LOGS", "name": "SRV-WEB-SYS-NTP", "type": "server", "vlan": 50, "ip": "10.10.4.11", "netmask": "255.255.255.224", "gateway": "10.10.4.1", "dns": "10.10.4.10", "x": 660, "y": 190,
+                        "services": {"http": True, "tftp": True}
+                    },
+                    {
+                        "id": "SRV_MQTT", "name": "SRV-BROKER-MQTT", "type": "server", "vlan": 50, "ip": "10.10.4.12", "netmask": "255.255.255.224", "gateway": "10.10.4.1", "dns": "10.10.4.10", "x": 800, "y": 190,
+                        "services": {"http": True}
+                    },
+
+                    {"id": "SW_EDIF_A", "name": "SW-EDIF-A-ADMIN", "type": "switch_l2", "x": 180, "y": 350, "vtp_mode": "client", "vtp_domain": "UMG-CAMPUS"},
+                    {"id": "SW_EDIF_B", "name": "SW-EDIF-B-AULAS", "type": "switch_l2", "x": 390, "y": 350, "vtp_mode": "client", "vtp_domain": "UMG-CAMPUS"},
+                    {"id": "SW_EDIF_C", "name": "SW-EDIF-C-LABS", "type": "switch_l2", "x": 600, "y": 350, "vtp_mode": "client", "vtp_domain": "UMG-CAMPUS"},
+                    {"id": "SW_EDIF_D", "name": "SW-EDIF-D-BIBLIO", "type": "switch_l2", "x": 810, "y": 350, "vtp_mode": "client", "vtp_domain": "UMG-CAMPUS"},
+
+                    {"id": "PC_ADMIN", "name": "PC-ADMIN-VLAN10", "type": "pc", "vlan": 10, "dhcp": True, "x": 130, "y": 490},
+                    {"id": "PHONE_VOZ", "name": "PC-VOZ-VLAN70", "type": "pc", "vlan": 70, "dhcp": True, "x": 230, "y": 490},
+
+                    {"id": "LAP_DOCENTE", "name": "LAP-DOCENTE-VLAN20", "type": "laptop", "vlan": 20, "dhcp": True, "x": 340, "y": 490},
+                    {"id": "LAP_ESTUDIANTE", "name": "LAP-ESTUDIANTE-VLAN30", "type": "laptop", "vlan": 30, "dhcp": True, "x": 440, "y": 490},
+
+                    {"id": "PC_LAB", "name": "PC-LAB-VLAN40", "type": "pc", "vlan": 40, "dhcp": True, "x": 550, "y": 490},
+                    {"id": "PC_IOT", "name": "PC-IOT-SENSOR-VLAN60", "type": "pc", "vlan": 60, "dhcp": True, "x": 650, "y": 490},
+
+                    {"id": "PC_BIBLIO", "name": "PC-BIBLIO-VLAN40", "type": "pc", "vlan": 40, "dhcp": True, "x": 760, "y": 490},
+                    {"id": "LAP_INVITADO", "name": "LAP-INVITADO-VLAN80", "type": "laptop", "vlan": 80, "dhcp": True, "x": 860, "y": 490}
+                ],
+                "links": [
+                    {"source": "R1_CORE", "target": "SW_CORE", "is_trunk": False},
+                    {"source": "SW_CORE", "target": "SW_EDIF_A", "is_trunk": True},
+                    {"source": "SW_CORE", "target": "SW_EDIF_B", "is_trunk": True},
+                    {"source": "SW_CORE", "target": "SW_EDIF_C", "is_trunk": True},
+                    {"source": "SW_CORE", "target": "SW_EDIF_D", "is_trunk": True},
+                    
+                    {"source": "SW_CORE", "target": "SRV_DHCP_DNS"},
+                    {"source": "SW_CORE", "target": "SRV_WEB_LOGS"},
+                    {"source": "SW_CORE", "target": "SRV_MQTT"},
+
+                    {"source": "SW_EDIF_A", "target": "PC_ADMIN"},
+                    {"source": "SW_EDIF_A", "target": "PHONE_VOZ"},
+                    {"source": "SW_EDIF_B", "target": "LAP_DOCENTE"},
+                    {"source": "SW_EDIF_B", "target": "LAP_ESTUDIANTE"},
+                    {"source": "SW_EDIF_C", "target": "PC_LAB"},
+                    {"source": "SW_EDIF_C", "target": "PC_IOT"},
+                    {"source": "SW_EDIF_D", "target": "PC_BIBLIO"},
+                    {"source": "SW_EDIF_D", "target": "LAP_INVITADO"}
+                ]
+            }
+
         # --- NEW: Check for CCNA Homework / Router-on-a-Stick ---
         if "tecnosoluciones" in p_lower or ("router-on-a-stick" in p_lower and "vtp" in p_lower):
             return {
@@ -301,6 +390,106 @@ class AIEngine:
                     {"source": "PC7", "target": "SW3"}, {"source": "PC8", "target": "SW3"},
                     {"source": "PC9", "target": "SW3"}, {"source": "PC10", "target": "SW3"}
                 ]
+            }
+
+
+        # --- UNIVERSAL DYNAMIC PARSER FOR ANY CUSTOM EXERCISE ---
+        vlans_raw = re.findall(r'vlan\s*(\d+)[\s:\-_]+([a-zA-Z0-9_\-áéíóúÁÉÍÓÚñÑ]+)', prompt, re.IGNORECASE)
+        # Also extract host counts if present per vlan
+        host_map = {}
+        for h_m in re.finditer(r'vlan\s*(\d+)[^\d\n]*?(\d+)\s*hosts?', prompt, re.IGNORECASE):
+            host_map[h_m.group(1)] = int(h_m.group(2))
+        vlans_raw = [(v[0], v[1], str(host_map.get(v[0], 30))) for v in vlans_raw]
+        if not vlans_raw:
+            num_matches = re.findall(r'vlan\s*(\d+)', prompt, re.IGNORECASE)
+            if num_matches and len(num_matches) >= 2:
+                vlans_raw = [(n, f"VLAN_{n}", "30") for n in num_matches]
+
+        if vlans_raw and len(vlans_raw) >= 2:
+            net_match = re.search(r'(10\.\d+\.\d+\.\d+/\d+|192\.168\.\d+\.\d+/\d+|172\.\d+\.\d+\.\d+/\d+)', prompt)
+            base_network = net_match.group(1) if net_match else ("10.0.0.0/16" if "10." in prompt else "192.168.10.0/24")
+            
+            vlan_reqs = []
+            for v in vlans_raw:
+                vid = int(v[0])
+                vname = v[1].upper() if len(v) > 1 and v[1] else f"VLAN_{vid}"
+                vhosts = int(v[2]) if len(v) > 2 and v[2] else 30
+                vlan_reqs.append({"vlan": vid, "name": vname, "hosts": vhosts})
+
+            calculated_subnets = NetworkEngine.calculate_vlsm(base_network, vlan_reqs)
+
+            r_match = re.search(r'(\d+)\s*(router|routers|enrutador|enrutadores)', p_lower)
+            s_match = re.search(r'(\d+)\s*(switch|switches|conmutador|conmutadores)', p_lower)
+            r_num = int(r_match.group(1)) if r_match else 1
+            s_num = int(s_match.group(1)) if s_match else max(2, min(4, len(vlan_reqs)))
+
+            devices = []
+            links = []
+
+            for r_i in range(r_num):
+                r_id = f"R{r_i+1}"
+                devices.append({
+                    "id": r_id, "name": r_id, "type": "router", "roas": True,
+                    "x": 400 + r_i * 200, "y": 80,
+                    "dhcp_helpers": ["192.168.1.10" if "192." in base_network else "10.0.0.10"]
+                })
+
+            sw_spacing = max(160, 800 // max(1, s_num))
+            for s_i in range(s_num):
+                s_id = f"SW{s_i+1}"
+                devices.append({
+                    "id": s_id, "name": s_id, "type": "switch_l2",
+                    "x": 180 + s_i * sw_spacing, "y": 240,
+                    "vtp_mode": "server" if s_i == 0 else "client",
+                    "vtp_domain": "ENTERPRISE"
+                })
+
+            links.append({"source": "R1", "target": "SW1", "is_trunk": True})
+            for s_i in range(1, s_num):
+                links.append({"source": "SW1", "target": f"SW{s_i+1}", "is_trunk": True})
+
+            first_gw = calculated_subnets[0].get("gateway", "192.168.1.1")
+            srv_ip = calculated_subnets[0].get("network", "192.168.1.0").rsplit(".", 1)[0] + ".10"
+            devices.append({
+                "id": "SRV1", "name": "SRV-DHCP-DNS", "type": "server",
+                "vlan": calculated_subnets[0]["vlan"], "ip": srv_ip,
+                "netmask": calculated_subnets[0]["netmask"], "gateway": first_gw,
+                "x": 180 + s_num * sw_spacing, "y": 240,
+                "services": {
+                    "http": True, "dns": [{"name": "www.empresa.local", "ip": srv_ip}],
+                    "dhcp": [
+                        {
+                            "name": s["name"], "network": s["network"], "mask": s["netmask"],
+                            "gw": s["gateway"], "dns": srv_ip,
+                            "start_ip": s.get("first_host", s["gateway"]),
+                            "end_ip": s.get("last_host", s["gateway"])
+                        } for s in calculated_subnets if s.get("first_host")
+                    ]
+                }
+            })
+            links.append({"source": "SW1", "target": "SRV1"})
+
+            pc_idx = 1
+            for v_idx, v in enumerate(calculated_subnets):
+                if v.get("vlan") == 99: continue
+                target_sw = f"SW{(v_idx % max(1, s_num - 1)) + 2}" if s_num > 1 else "SW1"
+                sw_obj = next(d for d in devices if d["id"] == target_sw)
+                
+                pc_id = f"PC{pc_idx}_{v['name'][:6]}"
+                devices.append({
+                    "id": pc_id, "name": pc_id, "type": "pc", "vlan": v["vlan"], "dhcp": True,
+                    "x": sw_obj["x"] + ((pc_idx % 2) * 60 - 30),
+                    "y": 420 + (pc_idx % 2) * 50
+                })
+                links.append({"source": target_sw, "target": pc_id})
+                pc_idx += 1
+
+            return {
+                "topology_type": "custom",
+                "name": f"Dynamic Custom Network ({len(calculated_subnets)} VLANs, {s_num} SWs)",
+                "vlans": calculated_subnets,
+                "devices": devices,
+                "links": links
             }
 
         # Check if servers / DMZ are explicitly requested

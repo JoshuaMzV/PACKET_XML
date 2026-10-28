@@ -1,0 +1,486 @@
+<DEVICE>
+    <ENGINE>
+     <TYPE customModel="" model="1841">Router</TYPE>
+     <NAME translate="true">Router0</NAME>
+     <POWER>true</POWER>
+     <DESCRIPTION />
+     <MODULE>
+      <TYPE>eNonRemovableModule</TYPE>
+      <MODEL />
+      <SLOT>
+       <TYPE>eNonRemovableModule</TYPE>
+       <MODULE>
+        <TYPE>eNonRemovableModule</TYPE>
+        <MODEL />
+        <SLOT>
+         <TYPE>eInterfaceCard</TYPE>
+        </SLOT>
+        <SLOT>
+         <TYPE>eInterfaceCard</TYPE>
+         <MODULE>
+          <TYPE>eInterfaceCard</TYPE>
+          <MODEL>WIC-2T</MODEL>
+          <PORT>
+           <ACL_IN_ID />
+           <ACL_OUT_ID />
+           <ACLv6_IN_ID />
+           <ACLv6_OUT_ID />
+           <TIMEOUT>14400000</TIMEOUT>
+           <TYPE>eSmartSerial</TYPE>
+           <POWER>false</POWER>
+           <MEDIATYPE>0</MEDIATYPE>
+           <PINS>false</PINS>
+           <FIBERMULTIMODE>true</FIBERMULTIMODE>
+           <BANDWIDTH>1544</BANDWIDTH>
+           <SPEED>100</SPEED>
+           <FULLDUPLEX>true</FULLDUPLEX>
+           <AUTONEGOTIATEBANDWIDTH>true</AUTONEGOTIATEBANDWIDTH>
+           <AUTONEGOTIATESPEED>true</AUTONEGOTIATESPEED>
+           <AUTONEGOTIATEDUPLEX>true</AUTONEGOTIATEDUPLEX>
+           <MACADDRESS>0001.4211.D701</MACADDRESS>
+           <BIA>0001.4211.D701</BIA>
+           <CLOCKRATE>2000000</CLOCKRATE>
+           <CLOCKRATEFLAG>true</CLOCKRATEFLAG>
+           <DESCRIPTION />
+           <CHANNEL>0</CHANNEL>
+           <CHANNEL5GHZ>0</CHANNEL5GHZ>
+           <COVERAGERANGE>0</COVERAGERANGE>
+           <SAVED_FULLDUPLEX>true</SAVED_FULLDUPLEX>
+           <UP_METHOD>5</UP_METHOD>
+           <IP />
+           <SUBNET />
+           <PORT_GATEWAY />
+           <PORT_DNS />
+           <PORT_DHCP_ENABLE>false</PORT_DHCP_ENABLE>
+           <ND_SUPPRESSED>false</ND_SUPPRESSED>
+           <ND_IPV6_DNS_ADDRESSES />
+           <PC_FIREWALL>false</PC_FIREWALL>
+           <PC_IPV6_FIREWALL>false</PC_IPV6_FIREWALL>
+           <IPV6_ENABLED>false</IPV6_ENABLED>
+           <IPV6_ADDRESS_AUTOCONFIG>false</IPV6_ADDRESS_AUTOCONFIG>
+           <IPV6_PORT_GATEWAY />
+           <IPV6_PORT_DNS />
+           <IPV6_LINK_LOCAL />
+           <IPV6_DEFAULT_LINK_LOCAL>FE80::201:42FF:FE11:D701</IPV6_DEFAULT_LINK_LOCAL>
+           <IPV6_PORT_DHCP_ENABLED>false</IPV6_PORT_DHCP_ENABLED>
+           <IPV6_ADDRESSES />
+           <IP_UNNUMBERED />
+           <DHCP_SERVER_IP>0.0.0.0</DHCP_SERVER_IP>
+           <MANAGEMENT_INTERFACE>false</MANAGEMENT_INTERFACE>
+          </PORT>
+          <PORT>
+           <ACL_IN_ID />
+           <ACL_OUT_ID />
+           <ACLv6_IN_ID />
+           <ACLv6_OUT_ID />
+           <TIMEOUT>14400000</TIMEOUT>
+           <TYPE>eSmartSerial</TYPE>
+           <POWER>false</POWER>
+           <MEDIATYPE>0</MEDIATYPE>
+           <PINS>false</PINS>
+           <FIBERMULTIMODE>true</FIBERMULTIMODE>
+           <BANDWIDTH>1544</BANDWIDTH>
+           <SPEED>100</SPEED>
+           <FULLDUPLEX>true</FULLDUPLEX>
+           <AUTONEGOTIATEBANDWIDTH>true</AUTONEGOTIATEBANDWIDTH>
+           <AUTONEGOTIATESPEED>true</AUTONEGOTIATESPEED>
+           <AUTONEGOTIATEDUPLEX>true</AUTONEGOTIATEDUPLEX>
+           <MACADDRESS>0001.4211.D701</MACADDRESS>
+           <BIA>0001.4211.D701</BIA>
+           <CLOCKRATE>2000000</CLOCKRATE>
+           <CLOCKRATEFLAG>true</CLOCKRATEFLAG>
+           <DESCRIPTION />
+           <CHANNEL>0</CHANNEL>
+           <CHANNEL5GHZ>0</CHANNEL5GHZ>
+           <COVERAGERANGE>0</COVERAGERANGE>
+           <SAVED_FULLDUPLEX>true</SAVED_FULLDUPLEX>
+           <UP_METHOD>5</UP_METHOD>
+           <IP />
+           <SUBNET />
+           <PORT_GATEWAY />
+           <PORT_DNS />
+           <PORT_DHCP_ENABLE>false</PORT_DHCP_ENABLE>
+           <ND_SUPPRESSED>false</ND_SUPPRESSED>
+           <ND_IPV6_DNS_ADDRESSES />
+           <PC_FIREWALL>false</PC_FIREWALL>
+           <PC_IPV6_FIREWALL>false</PC_IPV6_FIREWALL>
+           <IPV6_ENABLED>false</IPV6_ENABLED>
+           <IPV6_ADDRESS_AUTOCONFIG>false</IPV6_ADDRESS_AUTOCONFIG>
+           <IPV6_PORT_GATEWAY />
+           <IPV6_PORT_DNS />
+           <IPV6_LINK_LOCAL />
+           <IPV6_DEFAULT_LINK_LOCAL>FE80::201:42FF:FE11:D701</IPV6_DEFAULT_LINK_LOCAL>
+           <IPV6_PORT_DHCP_ENABLED>false</IPV6_PORT_DHCP_ENABLED>
+           <IPV6_ADDRESSES />
+           <IP_UNNUMBERED />
+           <DHCP_SERVER_IP>0.0.0.0</DHCP_SERVER_IP>
+           <MANAGEMENT_INTERFACE>false</MANAGEMENT_INTERFACE>
+          </PORT>
+         </MODULE>
+        </SLOT>
+        <PORT>
+         <ACL_IN_ID />
+         <ACL_OUT_ID />
+         <ACLv6_IN_ID />
+         <ACLv6_OUT_ID />
+         <TIMEOUT>14400000</TIMEOUT>
+         <TYPE>eCopperFastEthernet</TYPE>
+         <POWER>false</POWER>
+         <MEDIATYPE>0</MEDIATYPE>
+         <PINS>false</PINS>
+         <FIBERMULTIMODE>true</FIBERMULTIMODE>
+         <BANDWIDTH>100000</BANDWIDTH>
+         <SPEED>100</SPEED>
+         <FULLDUPLEX>false</FULLDUPLEX>
+         <AUTONEGOTIATEBANDWIDTH>true</AUTONEGOTIATEBANDWIDTH>
+         <AUTONEGOTIATESPEED>true</AUTONEGOTIATESPEED>
+         <AUTONEGOTIATEDUPLEX>true</AUTONEGOTIATEDUPLEX>
+         <MACADDRESS>0001.4211.D701</MACADDRESS>
+         <BIA>0001.4211.D701</BIA>
+         <CLOCKRATE>2000000</CLOCKRATE>
+         <CLOCKRATEFLAG>false</CLOCKRATEFLAG>
+         <DESCRIPTION />
+         <CHANNEL>0</CHANNEL>
+         <CHANNEL5GHZ>0</CHANNEL5GHZ>
+         <COVERAGERANGE>0</COVERAGERANGE>
+         <SAVED_FULLDUPLEX>false</SAVED_FULLDUPLEX>
+         <UP_METHOD>5</UP_METHOD>
+         <IP />
+         <SUBNET />
+         <PORT_GATEWAY />
+         <PORT_DNS />
+         <PORT_DHCP_ENABLE>false</PORT_DHCP_ENABLE>
+         <ND_SUPPRESSED>false</ND_SUPPRESSED>
+         <ND_IPV6_DNS_ADDRESSES />
+         <PC_FIREWALL>false</PC_FIREWALL>
+         <PC_IPV6_FIREWALL>false</PC_IPV6_FIREWALL>
+         <IPV6_ENABLED>false</IPV6_ENABLED>
+         <IPV6_ADDRESS_AUTOCONFIG>false</IPV6_ADDRESS_AUTOCONFIG>
+         <IPV6_PORT_GATEWAY />
+         <IPV6_PORT_DNS />
+         <IPV6_LINK_LOCAL />
+         <IPV6_DEFAULT_LINK_LOCAL>FE80::201:42FF:FE11:D701</IPV6_DEFAULT_LINK_LOCAL>
+         <IPV6_PORT_DHCP_ENABLED>false</IPV6_PORT_DHCP_ENABLED>
+         <IPV6_ADDRESSES />
+         <IP_UNNUMBERED />
+         <DHCP_SERVER_IP>0.0.0.0</DHCP_SERVER_IP>
+         <MANAGEMENT_INTERFACE>false</MANAGEMENT_INTERFACE>
+        </PORT>
+        <PORT>
+         <ACL_IN_ID />
+         <ACL_OUT_ID />
+         <ACLv6_IN_ID />
+         <ACLv6_OUT_ID />
+         <TIMEOUT>14400000</TIMEOUT>
+         <TYPE>eCopperFastEthernet</TYPE>
+         <POWER>false</POWER>
+         <MEDIATYPE>0</MEDIATYPE>
+         <PINS>false</PINS>
+         <FIBERMULTIMODE>true</FIBERMULTIMODE>
+         <BANDWIDTH>100000</BANDWIDTH>
+         <SPEED>100</SPEED>
+         <FULLDUPLEX>false</FULLDUPLEX>
+         <AUTONEGOTIATEBANDWIDTH>true</AUTONEGOTIATEBANDWIDTH>
+         <AUTONEGOTIATESPEED>true</AUTONEGOTIATESPEED>
+         <AUTONEGOTIATEDUPLEX>true</AUTONEGOTIATEDUPLEX>
+         <MACADDRESS>0001.4211.D702</MACADDRESS>
+         <BIA>0001.4211.D702</BIA>
+         <CLOCKRATE>2000000</CLOCKRATE>
+         <CLOCKRATEFLAG>false</CLOCKRATEFLAG>
+         <DESCRIPTION />
+         <CHANNEL>0</CHANNEL>
+         <CHANNEL5GHZ>0</CHANNEL5GHZ>
+         <COVERAGERANGE>0</COVERAGERANGE>
+         <SAVED_FULLDUPLEX>false</SAVED_FULLDUPLEX>
+         <UP_METHOD>5</UP_METHOD>
+         <IP />
+         <SUBNET />
+         <PORT_GATEWAY />
+         <PORT_DNS />
+         <PORT_DHCP_ENABLE>false</PORT_DHCP_ENABLE>
+         <ND_SUPPRESSED>false</ND_SUPPRESSED>
+         <ND_IPV6_DNS_ADDRESSES />
+         <PC_FIREWALL>false</PC_FIREWALL>
+         <PC_IPV6_FIREWALL>false</PC_IPV6_FIREWALL>
+         <IPV6_ENABLED>false</IPV6_ENABLED>
+         <IPV6_ADDRESS_AUTOCONFIG>false</IPV6_ADDRESS_AUTOCONFIG>
+         <IPV6_PORT_GATEWAY />
+         <IPV6_PORT_DNS />
+         <IPV6_LINK_LOCAL />
+         <IPV6_DEFAULT_LINK_LOCAL>FE80::201:42FF:FE11:D702</IPV6_DEFAULT_LINK_LOCAL>
+         <IPV6_PORT_DHCP_ENABLED>false</IPV6_PORT_DHCP_ENABLED>
+         <IPV6_ADDRESSES />
+         <IP_UNNUMBERED />
+         <DHCP_SERVER_IP>0.0.0.0</DHCP_SERVER_IP>
+         <MANAGEMENT_INTERFACE>false</MANAGEMENT_INTERFACE>
+        </PORT>
+       </MODULE>
+      </SLOT>
+     </MODULE>
+     <CUSTOM_VARS>AAAAAgAAABAAUABUAF8ATQBPAEQARQBMAAAACgAAAAAIADEAOAA0ADEAAAAUAFAAVABfAFYARQBSAFMASQBPAE4AAAAKAAAAAAgAMQAyAC4ANA==</CUSTOM_VARS>
+     <CUSTOM_INTERFACE />
+     <SYS_CONTACT />
+     <SYS_LOCATION />
+     <COORD_SETTINGS>
+      <X_COORD>1269.51</X_COORD>
+      <Y_COORD>1236.93</Y_COORD>
+      <Z_COORD>0</Z_COORD>
+     </COORD_SETTINGS>
+     <SERIALNUMBER>FHK11116653-</SERIALNUMBER>
+     <EXT_ATTRIBUTES>MTBF:300000;cost:500;power source:0;rack units:1;wattage:35;</EXT_ATTRIBUTES>
+     <USB_PORT_COUNT>0</USB_PORT_COUNT>
+     <TEMPLATE_CREATION_TIME>0</TEMPLATE_CREATION_TIME>
+     <IGNORE_TEMPLATE_CREATION_TIME>0</IGNORE_TEMPLATE_CREATION_TIME>
+     <STARTTIME>730965635103</STARTTIME>
+     <STARTSIMTIME>53144</STARTSIMTIME>
+     <USER_APPS>
+      <RUNNING_APPS />
+      <DESKTOP_APPS />
+     </USER_APPS>
+     <SAVE_REF_ID>save-ref-id:3888094043928508590</SAVE_REF_ID>
+     <IGNORED_VERSION />
+     <SYS_NAME>Router</SYS_NAME>
+     <PTP_ENALBED>0</PTP_ENALBED>
+     <RUNNINGCONFIG>
+      <LINE>!</LINE>
+      <LINE>version 12.4</LINE>
+      <LINE>no service timestamps log datetime msec</LINE>
+      <LINE>no service timestamps debug datetime msec</LINE>
+      <LINE>no service password-encryption</LINE>
+      <LINE>!</LINE>
+      <LINE>hostname Router</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>no ip cef</LINE>
+      <LINE>no ipv6 cef</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>spanning-tree mode pvst</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>interface FastEthernet0/0</LINE>
+      <LINE> no ip address</LINE>
+      <LINE> duplex auto</LINE>
+      <LINE> speed auto</LINE>
+      <LINE> shutdown</LINE>
+      <LINE>!</LINE>
+      <LINE>interface FastEthernet0/1</LINE>
+      <LINE> no ip address</LINE>
+      <LINE> duplex auto</LINE>
+      <LINE> speed auto</LINE>
+      <LINE> shutdown</LINE>
+      <LINE>!</LINE>
+      <LINE>interface Serial0/1/0</LINE>
+      <LINE> no ip address</LINE>
+      <LINE> clock rate 2000000</LINE>
+      <LINE> shutdown</LINE>
+      <LINE>!</LINE>
+      <LINE>interface Serial0/1/1</LINE>
+      <LINE> no ip address</LINE>
+      <LINE> clock rate 2000000</LINE>
+      <LINE> shutdown</LINE>
+      <LINE>!</LINE>
+      <LINE>interface Vlan1</LINE>
+      <LINE> no ip address</LINE>
+      <LINE> shutdown</LINE>
+      <LINE>!</LINE>
+      <LINE>ip classless</LINE>
+      <LINE>!</LINE>
+      <LINE>ip flow-export version 9</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>line con 0</LINE>
+      <LINE>!</LINE>
+      <LINE>line aux 0</LINE>
+      <LINE>!</LINE>
+      <LINE>line vty 0 4</LINE>
+      <LINE> login</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>!</LINE>
+      <LINE>end</LINE>
+     </RUNNINGCONFIG>
+     <STARTUPCONFIG />
+     <CURRENT_COMMAND_SET>1841_advip_12.4</CURRENT_COMMAND_SET>
+     <FILE_MANAGER>
+      <FILE class="CDirectory">
+       <FILE_NUMBER>0</FILE_NUMBER>
+       <NAME />
+       <DATE_TIME>0</DATE_TIME>
+       <PERMISSION>6</PERMISSION>
+       <FILE_CONTENT />
+       <FILES>
+        <FILE class="CFileSystem">
+         <FILE_NUMBER>0</FILE_NUMBER>
+         <NAME>flash:</NAME>
+         <DATE_TIME>0</DATE_TIME>
+         <PERMISSION>6</PERMISSION>
+         <FILE_CONTENT />
+         <FILES>
+          <FILE class="CFile">
+           <FILE_NUMBER>3</FILE_NUMBER>
+           <NAME>c1841-advipservicesk9-mz.124-15.T1.bin</NAME>
+           <DATE_TIME>0</DATE_TIME>
+           <PERMISSION>6</PERMISSION>
+           <FILE_CONTENT class="CIosFileContent">
+            <DEVICE_TYPE>Router</DEVICE_TYPE>
+            <SET_NAME>1841_advip_12.4</SET_NAME>
+           </FILE_CONTENT>
+          </FILE>
+          <FILE class="CFile">
+           <FILE_NUMBER>2</FILE_NUMBER>
+           <NAME>sigdef-category.xml</NAME>
+           <DATE_TIME>0</DATE_TIME>
+           <PERMISSION>6</PERMISSION>
+           <FILE_CONTENT class="CIpsCategoryFileContent">
+            <SIG_CAT />
+           </FILE_CONTENT>
+          </FILE>
+          <FILE class="CFile">
+           <FILE_NUMBER>1</FILE_NUMBER>
+           <NAME>sigdef-default.xml</NAME>
+           <DATE_TIME>0</DATE_TIME>
+           <PERMISSION>6</PERMISSION>
+           <FILE_CONTENT class="CIpsDatFileContent">
+            <ICMP_SIGNATURE>
+             <SIGNATURE>
+              <SIG_ID>2004</SIG_ID>
+              <SUB_ID>0</SUB_ID>
+              <RETIRED>0</RETIRED>
+              <ENABLED>0</ENABLED>
+              <EVENT_ACTION>0</EVENT_ACTION>
+             </SIGNATURE>
+            </ICMP_SIGNATURE>
+           </FILE_CONTENT>
+          </FILE>
+         </FILES>
+         <FILE_COUNTER>3</FILE_COUNTER>
+         <CAPACITY>64016384</CAPACITY>
+        </FILE>
+       </FILES>
+      </FILE>
+     </FILE_MANAGER>
+     <CONFIG_REGISTER>8450</CONFIG_REGISTER>
+     <NEXT_CONFIG_REGISTER>8450</NEXT_CONFIG_REGISTER>
+     <CURRENT_BOOT_FILE>flash:/c1841-advipservicesk9-mz.124-15.T1.bin</CURRENT_BOOT_FILE>
+     <CONFIG_BOOT_FILES />
+     <BUILD_IN_ADDR>0002.4A0D.271C</BUILD_IN_ADDR>
+     <BIOS_VERSION />
+     <SECURITY>
+      <KEY_NAME />
+      <TEMP_KEY_NAME />
+      <RSA_KEY />
+      <TEMP_RSA_KEY />
+      <TIME_DATE />
+      <ENABLED>0</ENABLED>
+      <MODULUS_BITS>0</MODULUS_BITS>
+     </SECURITY>
+     <ALGORITHM_SETTINGS>
+      <USE_GLOBAL>true</USE_GLOBAL>
+      <CBAC_HALF_OPEN_SESSION_MULTIPLIER>1</CBAC_HALF_OPEN_SESSION_MULTIPLIER>
+      <TCP_MAX_CONNECTING_SESSIONS>100</TCP_MAX_CONNECTING_SESSIONS>
+      <TCP_MAX_OPENED_SESSIONS>1000</TCP_MAX_OPENED_SESSIONS>
+      <INTERFACE_QUEUE_SIZE>10</INTERFACE_QUEUE_SIZE>
+      <STORM_CONTROL_MULTIPLIER>10</STORM_CONTROL_MULTIPLIER>
+      <TCP_MAX_RETRANSMISSION_TIMEOUT>1000</TCP_MAX_RETRANSMISSION_TIMEOUT>
+     </ALGORITHM_SETTINGS>
+     <SCP_SERVER_ENABLED>false</SCP_SERVER_ENABLED>
+     <SENSOR_ENABLED>false</SENSOR_ENABLED>
+     <SMART_LICENSE_CLIENT>
+      <IDTOKEN />
+      <IDTOKEN_LOCAL>false</IDTOKEN_LOCAL>
+      <LICENSE />
+      <TRUST_CODE_TIMESTAMP />
+      <REPORT_TIMESTAMP />
+      <LAST_REPORT_TIMESTAMP />
+      <CREATE_TIME>1790041263141</CREATE_TIME>
+     </SMART_LICENSE_CLIENT>
+     <VLANS>
+      <VLAN name="default" number="1" rspan="0" />
+      <VLAN name="fddi-default" number="1002" rspan="0" />
+      <VLAN name="token-ring-default" number="1003" rspan="0" />
+      <VLAN name="fddinet-default" number="1004" rspan="0" />
+      <VLAN name="trnet-default" number="1005" rspan="0" />
+     </VLANS>
+     <VTP>
+      <DOMAIN_NAME />
+      <MODE>0</MODE>
+      <VERSION>1</VERSION>
+      <PASSWORD />
+      <CONFIG_REVISION>0</CONFIG_REVISION>
+      <UPDATER_IP>0.0.0.0</UPDATER_IP>
+      <UPDATE_TIMESTAMP>0-0-00 00:00:00</UPDATE_TIMESTAMP>
+     </VTP>
+     <SIG_IPSPROCESS>
+      <SIGNATURE>
+       <SIG_ID>2004</SIG_ID>
+       <SUB_ID>0</SUB_ID>
+       <RETIRED>0</RETIRED>
+       <ENABLED>0</ENABLED>
+       <EVENT_ACTION>0</EVENT_ACTION>
+      </SIGNATURE>
+     </SIG_IPSPROCESS>
+     <CELLULAR_CLIENT_MANAGER>
+      <PORT_TO_CLIENT_MAP />
+     </CELLULAR_CLIENT_MANAGER>
+     <NDV6>
+      <ENABLED_HOST />
+      <ENABLED_ROUTER>0</ENABLED_ROUTER>
+      <SERVER_ROUTER_PORT_DATA_HEAD />
+     </NDV6>
+    </ENGINE>
+    <WORKSPACE>
+     <LOGICAL>
+      <X>501.5</X>
+      <Y>309</Y>
+      <DEVCLUSTERID>1-1</DEVCLUSTERID>
+      <CUSTOM_IMAGE_LOGICAL />
+      <CUSTOM_IMAGE_PHYSICAL />
+      <MEM_ADDR>94568119405680</MEM_ADDR>
+      <DEV_ADDR>94567996266520</DEV_ADDR>
+     </LOGICAL>
+     <PHYSICAL>{a4e148ee-71e9-414b-ac73-8afcd200a267},{ef24d559-7f46-4c48-9306-8fc6314c94bf},{de0759b5-a2ab-4a36-852b-3a5a9dd60d51},{d7072758-e3e2-424c-878b-42a3a9c56ace},{306b238b-af5d-48ec-bb45-0f3237f1b65b},{7b2ffbdb-1ee7-4023-ac7c-37afc612c216}</PHYSICAL>
+     <PHYSICAL_CPUR>
+      <X_PN>0.131</X_PN>
+      <Y_PN>0.08775</Y_PN>
+      <X>4</X>
+      <Y>0</Y>
+      <SLOT>0</SLOT>
+      <SUBSLOT>0</SUBSLOT>
+      <PARENT_PATH>{a4e148ee-71e9-414b-ac73-8afcd200a267},{ef24d559-7f46-4c48-9306-8fc6314c94bf},{de0759b5-a2ab-4a36-852b-3a5a9dd60d51},{d7072758-e3e2-424c-878b-42a3a9c56ace}</PARENT_PATH>
+      <CONTAINER_ID>{306b238b-af5d-48ec-bb45-0f3237f1b65b}</CONTAINER_ID>
+      <ICP_CONTAINER_SCENE_X>0</ICP_CONTAINER_SCENE_X>
+      <ICP_CONTAINER_SCENE_Y>0</ICP_CONTAINER_SCENE_Y>
+      <ORIGINAL_DEVICE_UUID>{3d6b4b6a-623b-0faa-ffed-b91f7dbae35d}</ORIGINAL_DEVICE_UUID>
+     </PHYSICAL_CPUR>
+    </WORKSPACE>
+   </DEVICE>
+   
